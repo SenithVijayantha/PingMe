@@ -9,7 +9,7 @@ const HomePage = () => {
   const [selectedUser, setSelectedUser] = useState(false);
 
   return (
-    <div className="flex w-full justify-between">
+    <div className="flex w-full h-screen justify-between overflow-hidden">
       <div>
         {/* Sidebar drawer */}
         <div className="lg:drawer-open drawer">
