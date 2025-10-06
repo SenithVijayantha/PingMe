@@ -4,7 +4,7 @@ import { useNavigate, Link } from "react-router";
 
 import { icon } from "../assets/assets";
 
-const Sidebar = () => {
+const Sidebar = ({selectedUser, setSelectedUser}) => {
   const navigate = useNavigate();
 
   return (

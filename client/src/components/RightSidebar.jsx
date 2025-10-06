@@ -1,7 +1,7 @@
 import React from 'react'
 import { PanelRightOpen } from 'lucide-react'
 
-const RightSidebar = () => {
+const RightSidebar = ({selectedUser, setSelectedUser}) => {
   return (
     <div>
         Right sidebar

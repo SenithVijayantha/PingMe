@@ -1,6 +1,6 @@
 import React from 'react'
 
-const ChatContainer = () => {
+const ChatContainer = ({selectedUser, setSelectedUser}) => {
   return (
     <div>ChatContainer</div>
   )

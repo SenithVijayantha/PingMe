@@ -32,13 +32,19 @@ const HomePage = () => {
             ></label>
             <ul className="menu bg-base-200 text-base-content min-h-full w-80 p-4">
               {/* Sidebar content here */}
-              <Sidebar />
+              <Sidebar
+                selectedUser={selectedUser}
+                setSelectedUser={setSelectedUser}
+              />
             </ul>
           </div>
         </div>
       </div>
       <div className="border-2 w-full">
-        <ChatContainer />
+        <ChatContainer
+          selectedUser={selectedUser}
+          setSelectedUser={setSelectedUser}
+        />
       </div>
       <div className={`${selectedUser ? "block" : "hidden"}`}>
         {/* Right sidebar drawer */}
@@ -65,7 +71,10 @@ const HomePage = () => {
             ></label>
             <ul className="menu bg-base-200 text-base-content min-h-full w-80 p-4">
               {/* Sidebar content here */}
-              <RightSidebar />
+              <RightSidebar
+                selectedUser={selectedUser}
+                setSelectedUser={setSelectedUser}
+              />
             </ul>
           </div>
         </div>
