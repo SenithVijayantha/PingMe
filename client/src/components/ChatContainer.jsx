@@ -1,6 +1,6 @@
 import React from "react";
 import { useRef, useEffect } from "react";
-import { MessageSquare } from "lucide-react";
+import { MessageSquare, ImagePlus, Send } from "lucide-react";
 
 import { dummyMessageData, icon, user1 } from "../assets/assets";
 import { formatDate } from "../lib/utils";
@@ -15,7 +15,7 @@ const ChatContainer = ({ selectedUser, setSelectedUser }) => {
   });
 
   return selectedUser ? (
-    <div className="flex flex-col h-screen mx-4">
+    <div className=" flex flex-col h-screen mx-4">
       {/* Header */}
       <div className="flex items-center gap-3 py-3 border-b border-accent-content">
         <img src={user1} alt="" className="w-8 h-8 object-cover rounded-full" />
@@ -58,6 +58,35 @@ const ChatContainer = ({ selectedUser, setSelectedUser }) => {
           </div>
         ))}
         <div ref={scrollEnd}></div>
+      </div>
+
+      {/* Bottom area */}
+      <div className="flex justify-between px-4 py-2 items-center gap-4">
+        <div className="w-full flex items-center justify-between gap-2">
+          <input
+            type="text"
+            placeholder="Type a message"
+            className="input border-none focus:outline-none w-full"
+          />
+          <input
+            type="file"
+            name=""
+            id="send-images"
+            accept="image/png, image/jpeg"
+            hidden
+          />
+          <label htmlFor="send-images">
+            <ImagePlus
+              width={24}
+              height={24}
+              color="gray"
+              className="cursor-pointer"
+            />
+          </label>
+        </div>
+        <button className="bg-accent rounded-sm w-8 h-8 flex items-center justify-center cursor-pointer">
+          <Send width={16} height={16}/>
+        </button>
       </div>
     </div>
   ) : (
