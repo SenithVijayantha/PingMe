@@ -40,7 +40,7 @@ const HomePage = () => {
           </div>
         </div>
       </div>
-      <div className="border-2 w-full">
+      <div className="w-full">
         <ChatContainer
           selectedUser={selectedUser}
           setSelectedUser={setSelectedUser}
