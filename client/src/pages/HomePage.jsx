@@ -73,7 +73,6 @@ const HomePage = () => {
               {/* Sidebar content here */}
               <RightSidebar
                 selectedUser={selectedUser}
-                setSelectedUser={setSelectedUser}
               />
             </ul>
           </div>

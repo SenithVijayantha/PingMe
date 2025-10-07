@@ -4,6 +4,10 @@ import user2 from "./user-2.jpeg";
 import user3 from "./user-3.jpg";
 import img1 from "./chocolate.jpg";
 import img2 from "./coffee.jpg";
+import pic1 from "./pic1.png";
+import pic2 from "./pic2.png";
+import pic3 from "./pic3.png";
+import pic4 from "./pic4.png";
 import avatarIcon from "./avatar-icon.svg";
 
 const dummyUserData = [
@@ -41,6 +45,13 @@ const dummyUserData = [
     fullName: "Richard Smith",
     profilePic: user3,
     bio: "Hi Everyone, I am Using QuickChat",
+  },
+  {
+    _id: "681a42b7c12f4a5f9d7f23b8",
+    email: "emma.johnson@example.com",
+    fullName: "Emma Johnson",
+    // profilePic: user4,
+    bio: "Hey there! Excited to be part of QuickChat 🚀",
   },
 ];
 
@@ -103,4 +114,6 @@ const dummyMessageData = [
   },
 ];
 
-export { icon, avatarIcon, dummyUserData, dummyMessageData, user1 };
+const dummyImagesData = [pic1, pic2, pic3, pic4, pic1, pic2, pic3, pic4, pic1, pic2];
+
+export { icon, avatarIcon, dummyUserData, dummyMessageData, dummyImagesData, user1 };
