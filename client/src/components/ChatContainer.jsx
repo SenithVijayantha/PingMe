@@ -28,6 +28,7 @@ const ChatContainer = ({ selectedUser, setSelectedUser }) => {
       <div className="overflow-y-scroll py-8">
         {dummyMessageData.map((msg, index) => (
           <div
+            key={index}
             className={`chat ${
               msg.senderId !== "680f50e4f10f3cd28382ecf9"
                 ? "chat-start"
@@ -85,7 +86,7 @@ const ChatContainer = ({ selectedUser, setSelectedUser }) => {
           </label>
         </div>
         <button className="bg-accent rounded-sm w-8 h-8 flex items-center justify-center cursor-pointer">
-          <Send width={16} height={16}/>
+          <Send width={16} height={16} />
         </button>
       </div>
     </div>
