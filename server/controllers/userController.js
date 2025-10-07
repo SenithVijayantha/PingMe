@@ -2,6 +2,7 @@ import bcrypt from "bcryptjs";
 
 import { generateToken } from "../lib/utils.js";
 import User from "../models/userModel.js";
+import cloudinary from "../config/cloudinary.js";
 
 const isProduction = process.env.NODE_ENV === "prod";
 
@@ -106,5 +107,35 @@ export const login = async (req, res) => {
 
 // Checks if user is authenticated
 export const checkAuth = (req, res) => {
-  res.json({ success: true, user: req.user });
+  res.status(200).json({ success: true, user: req.user });
+};
+
+// Updates user profile
+export const updateProfile = async (req, res) => {
+  try {
+    const { profilePic, bio, fullName } = req.body;
+    const userId = req.user._id;
+    let updatedUser;
+
+    if (!profilePic) {
+      updatedUser = await User.findByIdAndUpdate(
+        userId,
+        { bio, fullName },
+        { new: true }
+      );
+    } else {
+      const upload = await cloudinary.uploader.upload(profilePic);
+      updatedUser = await User.findByIdAndUpdate(
+        userId,
+        { profilePic: upload.secure_url, bio, fullName },
+        { new: true }
+      );
+    }
+    return res.json({ success: true, user: updateProfile });
+  } catch (error) {
+    if (process.env.NODE_ENV === "dev") {
+      console.error("Error in updateProfile", error);
+    }
+    return res.status(500).json({ success: false, user: updateProfile });
+  }
 };
