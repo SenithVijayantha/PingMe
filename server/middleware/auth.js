@@ -4,18 +4,18 @@ import jwt from "jsonwebtoken";
 // middleware to protect routes
 export const protectRoute = async (req, res, next) => {
   try {
-    const token = req.headers.token;
+    const token = req.cookies.token;
 
     if (!token) {
-      return res.statue(400).json({
+      return res.status(400).json({
         success: false,
-        message: "Not Authorized. Login again",
+        message: "Not token. Login again",
       });
     }
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    if (!decoded.id) {
-      return res.statue(400).json({
+    if (!decoded.userId) {
+      return res.status(400).json({
         success: false,
         message: "Not Authorized. Login again",
       });
