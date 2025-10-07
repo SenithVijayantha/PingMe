@@ -1,8 +1,11 @@
+import bcrypt from "bcryptjs";
+
+import { generateToken } from "../lib/utils.js";
+import User from "../models/userModel.js";
+
+const isProduction = process.env.NODE_ENV === "prod";
+
 // Sign up
-
-import { generateToken } from "../lib/utils";
-import User from "../models/userModel";
-
 export const signup = async (req, res) => {
   const { fullName, email, password, bio } = req.body;
 
@@ -13,7 +16,7 @@ export const signup = async (req, res) => {
         .json({ success: false, message: "Missing details" });
     }
 
-    const user = await User.findOne(email);
+    const user = await User.findOne({ email });
 
     if (user) {
       return res
@@ -33,17 +36,23 @@ export const signup = async (req, res) => {
 
     const token = generateToken(newUser._id);
 
-    res.status(201).json({
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    return res.status(201).json({
       success: true,
       userData: newUser,
-      token,
       message: "Account created successfully",
     });
   } catch (error) {
     if (process.env.NODE_ENV === "dev") {
       console.error("Error in signup controller", error);
     }
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: error.message,
     });
