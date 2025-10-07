@@ -103,3 +103,8 @@ export const login = async (req, res) => {
     });
   }
 };
+
+// Checks if user is authenticated
+export const checkAuth = (req, res) => {
+  res.json({ success: true, user: req.user });
+};
