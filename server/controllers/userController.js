@@ -58,3 +58,48 @@ export const signup = async (req, res) => {
     });
   }
 };
+
+// Login
+export const login = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const userData = await User.findOne({ email });
+
+    if (!userData) {
+      return res
+        .status(400)
+        .json({ success: false, message: "User not found" });
+    }
+
+    const isPasswordCorrect = await bcrypt.compare(password, userData.password);
+
+    if (!isPasswordCorrect) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid password" });
+    }
+
+    const token = generateToken(userData._id);
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    return res.status(200).json({
+      success: true,
+      //   userData,
+      message: "User Logged in successfully",
+    });
+  } catch (error) {
+    if (process.env.NODE_ENV === "dev") {
+      console.error("Error in login controller", error);
+    }
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
