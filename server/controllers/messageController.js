@@ -35,7 +35,7 @@ export const getUsersForSidebar = async (req, res) => {
     if (process.env.NODE_ENV === "dev") {
       console.error("Error in getUsersForSidebar:", error);
     }
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: error.message,
     });
@@ -65,7 +65,7 @@ export const getMessages = async (req, res) => {
     if (process.env.NODE_ENV === "dev") {
       console.error("Error in getMessages:", error);
     }
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: error.message,
     });
@@ -73,7 +73,6 @@ export const getMessages = async (req, res) => {
 };
 
 // Mark messages as seen
-
 export const markMessagesAsSeen = async (req, res) => {
   try {
     const { id } = req.params;
