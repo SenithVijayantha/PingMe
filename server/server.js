@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 
 import { connectDB } from "./config/db.js";
 import userRouter from "./routes/userRoutes.js";
+import messageRouter from "./routes/messageRoutes.js";
 
 const app = express();
 const port = process.env.PORT || 5001;
@@ -15,10 +16,12 @@ app.use(express.json({ limit: "4mb" }));
 app.use(cookieParser());
 app.use(cors());
 
+// routes
 app.use("/api/status", (req, res) => {
   res.send("Server is listening");
 });
 app.use("/api/auth", userRouter);
+app.use("/api/messages", messageRouter);
 
 // connect DB and start server
 try {
