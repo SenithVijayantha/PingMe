@@ -71,3 +71,21 @@ export const getMessages = async (req, res) => {
     });
   }
 };
+
+// Mark messages as seen
+
+export const markMessagesAsSeen = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await Message.findByIdAndUpdate(id, { seen: true });
+    return res.status(200).json({ success: true });
+  } catch (error) {
+    if (process.env.NODE_ENV === "dev") {
+      console.error("Error in markMessagesAsSeen:", error);
+    }
+    return res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
