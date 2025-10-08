@@ -32,7 +32,39 @@ export const getUsersForSidebar = async (req, res) => {
       .status(200)
       .json({ success: true, users: filteredUsers, unseenMessages });
   } catch (error) {
-    console.error("Error in getUsersForSidebar:", error);
+    if (process.env.NODE_ENV === "dev") {
+      console.error("Error in getUsersForSidebar:", error);
+    }
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// Get all messages for selected user
+export const getMessages = async (req, res) => {
+  try {
+    const { id: selectedUserId } = req.params;
+    const myID = req.user._id;
+
+    const messages = await Message.find({
+      $or: [
+        { senderId: myID, receiverId: selectedUserId },
+        { senderId: selectedUserId, receiverId: myID },
+      ],
+    });
+
+    await Message.updateMany(
+      { senderId: selectedUserId, receiverId: myID },
+      { seen: true }
+    );
+
+    return res.status(200).json({ success: true, messages });
+  } catch (error) {
+    if (process.env.NODE_ENV === "dev") {
+      console.error("Error in getMessages:", error);
+    }
     res.status(500).json({
       success: false,
       message: error.message,
