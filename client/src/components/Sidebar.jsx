@@ -32,7 +32,7 @@ const Sidebar = () => {
   return (
     <div className="flex flex-col gap-6">
       {/* Navbar */}
-      <div className="navbar bg-base-100 shadow-sm">
+      <div className="navbar bg-base-100 shadow-sm rounded-lg">
         <div className="flex-1">
           <p className="btn btn-ghost text-lg">
             <img width={18} src={icon} alt="" />
@@ -100,7 +100,7 @@ const Sidebar = () => {
                 setSelectedUser(user);
                 setUnseenMessages((prev) => ({ ...prev, [user._id]: 0 }));
               }}
-              className={`relative flex items-center gap-2 p-2 pl-4 cursor-pointer ${
+              className={`relative flex items-center gap-2 p-2 pl-4 cursor-pointer rounded-lg ${
                 selectedUser?._id === user._id && "bg-secondary"
               }`}
             >
