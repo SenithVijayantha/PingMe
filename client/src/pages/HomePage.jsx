@@ -1,12 +1,13 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { PanelLeftOpen, PanelRightOpen } from "lucide-react";
 
 import Sidebar from "../components/Sidebar";
 import ChatContainer from "../components/ChatContainer";
 import RightSidebar from "../components/RightSidebar";
+import { ChatContext } from "../../context/ChatContext";
 
 const HomePage = () => {
-  const [selectedUser, setSelectedUser] = useState(false);
+  const { selectedUser } = useContext(ChatContext);
 
   return (
     <div className="flex w-full h-screen justify-between overflow-hidden">
@@ -65,7 +66,7 @@ const HomePage = () => {
             ></label>
             <ul className="menu bg-base-200 text-base-content min-h-full w-80 p-4">
               {/* Sidebar content here */}
-              <RightSidebar selectedUser={selectedUser} />
+              <RightSidebar />
             </ul>
           </div>
         </div>
