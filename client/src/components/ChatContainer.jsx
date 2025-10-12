@@ -2,13 +2,13 @@ import React from "react";
 import { useRef, useEffect, useContext, useState } from "react";
 import { MessageSquare, ImagePlus, Send } from "lucide-react";
 
-import { dummyMessageData, icon, user1 } from "../assets/assets";
+import { dummyMessageData, icon, user1, avatarIcon } from "../assets/assets";
 import { formatDate } from "../lib/utils";
 import { ChatContext } from "../../context/ChatContext";
 import { AuthContext } from "../../context/AuthContext";
 
 const ChatContainer = () => {
-  const { messages, selectedUser, setSelectedUser, sendMessages, getMessages } =
+  const { messages, selectedUser, setSelectedUser, sendMessage, getMessages } =
     useContext(ChatContext);
   const { authUser, onlineUsers } = useContext(AuthContext);
 
@@ -19,35 +19,65 @@ const ChatContainer = () => {
   const handleSendMessage = async (e) => {
     e.preventDefault();
 
-    if (input.trim() === "") return;
+    if (messageTextInput.trim() === "") return;
 
-    await sendMessages({ text: input.trim() });
+    await sendMessage({ text: messageTextInput.trim() });
     setMessageTextInput("");
   };
 
+  const handleSendImage = async (e) => {
+    const file = e.target.files[0];
+
+    if (!file || !file.type.startsWith("image/")) {
+      toast.error("Select an image file");
+      return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onloadend = async () => {
+      await sendMessages({ image: reader.result });
+      e.target.value = "";
+    };
+    reader.readAsDataURL(file);
+  };
+
   useEffect(() => {
-    if (scrollEnd.current) {
+    if (selectedUser) {
+      getMessages(selectedUser._id);
+    }
+  }, [selectedUser]);
+
+  useEffect(() => {
+    if (scrollEnd.current && messages) {
       scrollEnd.current.scrollIntoView({ behavior: "smooth" });
     }
-  });
+  }, [messages]);
 
   return selectedUser ? (
     <div className=" flex flex-col h-screen mx-4">
       {/* Header */}
       <div className="flex items-center gap-3 py-3 border-b border-accent-content">
-        <img src={user1} alt="" className="w-8 h-8 object-cover rounded-full" />
+        <img
+          src={selectedUser.profilePic || avatarIcon}
+          alt=""
+          className="w-8 h-8 object-cover rounded-full"
+        />
         <div className="flex-1 text-lg text-white flex items-center gap-2 ">
-          Clara Mitchell <div className="w-2 h-2 rounded-full bg-primary"></div>
+          {selectedUser.fullName}{" "}
+          {onlineUsers.includes(selectedUser._id) && (
+            <div className="w-2 h-2 rounded-full bg-primary"></div>
+          )}
         </div>
       </div>
 
       {/* Chat area */}
       <div className="overflow-y-scroll py-8">
-        {dummyMessageData.map((msg, index) => (
+        {messages.map((msg, index) => (
           <div
             key={index}
             className={`chat ${
-              msg.senderId !== "680f50e4f10f3cd28382ecf9"
+              msg.senderId !== authUser._id
                 ? "chat-start"
                 : "chat-end"
             }`}
@@ -56,7 +86,7 @@ const ChatContainer = () => {
               <div className="w-10 rounded-full">
                 <img
                   alt="Tailwind CSS chat bubble component"
-                  src="https://img.daisyui.com/images/profile/demo/kenobee@192.webp"
+                  src={selectedUser.profilePic || avatarIcon}
                 />
               </div>
             </div>
@@ -95,6 +125,7 @@ const ChatContainer = () => {
             id="send-images"
             accept="image/png, image/jpeg"
             hidden
+            onChange={handleSendImage}
           />
           <label htmlFor="send-images">
             <ImagePlus
