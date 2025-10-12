@@ -2,7 +2,7 @@ import React from "react";
 import { useRef, useEffect, useContext, useState } from "react";
 import { MessageSquare, ImagePlus, Send } from "lucide-react";
 
-import { dummyMessageData, icon, user1, avatarIcon } from "../assets/assets";
+import { avatarIcon } from "../assets/assets";
 import { formatDate } from "../lib/utils";
 import { ChatContext } from "../../context/ChatContext";
 import { AuthContext } from "../../context/AuthContext";
@@ -36,7 +36,7 @@ const ChatContainer = () => {
     const reader = new FileReader();
 
     reader.onloadend = async () => {
-      await sendMessages({ image: reader.result });
+      await sendMessage({ image: reader.result });
       e.target.value = "";
     };
     reader.readAsDataURL(file);
@@ -129,15 +129,16 @@ const ChatContainer = () => {
             accept="image/png, image/jpeg"
             hidden
             onChange={handleSendImage}
+
           />
-          <label htmlFor="send-images">
+          {/* <label htmlFor="send-images">
             <ImagePlus
               width={24}
               height={24}
               color="gray"
               className="cursor-pointer"
             />
-          </label>
+          </label> */}
         </div>
         <button
           className="bg-accent rounded-sm w-8 h-8 flex items-center justify-center cursor-pointer"
