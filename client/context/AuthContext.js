@@ -23,6 +23,9 @@ export const AuthProvider = ({ children }) => {
         setAuthUser(data.user);
         connectSocket(data.user);
       }
+      if (!data.success) {
+        setAuthUser(null);
+      }
     } catch (error) {
       toast.error(error.message);
     }
@@ -93,6 +96,9 @@ export const AuthProvider = ({ children }) => {
     authUser,
     onlineUsers,
     socket,
+    login,
+    logout,
+    updateProfile,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
