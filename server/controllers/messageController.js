@@ -1,5 +1,6 @@
-import Message from "../models/messageModel";
-import User from "../models/userModel";
+import cloudinary from "../config/cloudinary.js";
+import Message from "../models/messageModel.js";
+import User from "../models/userModel.js";
 
 // Get all users (exclude logged in User)
 export const getUsersForSidebar = async (req, res) => {
@@ -87,4 +88,29 @@ export const markMessagesAsSeen = async (req, res) => {
       message: error.message,
     });
   }
+};
+
+// Send message to a user
+export const sendMessage = async (req, res) => {
+  try {
+    const { text, image } = req.body;
+    const receiverId = req.params.id;
+    const senderId = req.user._id;
+
+    let imageUrl;
+
+    if (imageUrl) {
+      const uploadResponse = await cloudinary.uploader.upload(image);
+      imageUrl = uploadResponse.secure_url;
+    }
+
+    const newMessage = await Message.create({
+      senderId,
+      receiverId,
+      text,
+      image: imageUrl,
+    });
+
+    return res.status(201).json({ success: true, newMessage });
+  } catch (error) {}
 };
