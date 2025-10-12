@@ -19,9 +19,9 @@ const ChatContainer = ({ selectedUser, setSelectedUser }) => {
       {/* Header */}
       <div className="flex items-center gap-3 py-3 border-b border-accent-content">
         <img src={user1} alt="" className="w-8 h-8 object-cover rounded-full" />
-        <p className="flex-1 text-lg text-white flex items-center gap-2 ">
+        <div className="flex-1 text-lg text-white flex items-center gap-2 ">
           Clara Mitchell <div className="w-2 h-2 rounded-full bg-primary"></div>
-        </p>
+        </div>
       </div>
 
       {/* Chat area */}
