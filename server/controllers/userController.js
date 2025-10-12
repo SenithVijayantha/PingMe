@@ -145,11 +145,18 @@ export const updateProfile = async (req, res) => {
         { new: true }
       );
     }
-    return res.json({ success: true, user: updateProfile });
+    return res.json({
+      success: true,
+      user: updateProfile,
+      message: "Profile updated successfully",
+    });
   } catch (error) {
     if (process.env.NODE_ENV === "dev") {
       console.error("Error in updateProfile", error);
     }
-    return res.status(500).json({ success: false, user: updateProfile });
+    return res.status(500).json({
+      success: false,
+      user: updateProfile,
+    });
   }
 };
