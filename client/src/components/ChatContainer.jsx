@@ -77,16 +77,19 @@ const ChatContainer = () => {
           <div
             key={index}
             className={`chat ${
-              msg.senderId !== authUser._id
-                ? "chat-start"
-                : "chat-end"
+              msg.senderId !== authUser._id ? "chat-start" : "chat-end"
             }`}
           >
             <div className="chat-image avatar">
               <div className="w-10 rounded-full">
                 <img
                   alt="Tailwind CSS chat bubble component"
-                  src={selectedUser.profilePic || avatarIcon}
+                  // src={ selectedUser.profilePic || avatarIcon}
+                  src={
+                    msg.senderId === authUser._id
+                      ? authUser.profilePic || avatarIcon
+                      : selectedUser.profilePic || avatarIcon
+                  }
                 />
               </div>
             </div>
