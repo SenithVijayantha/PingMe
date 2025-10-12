@@ -84,6 +84,7 @@ const Sidebar = () => {
           </svg>
           <input
             type="search"
+            name="search-user"
             required
             placeholder="Search User..."
             onChange={(e) => setSearchInput(e.target.value)}
