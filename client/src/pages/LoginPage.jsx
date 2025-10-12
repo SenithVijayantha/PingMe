@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { ArrowLeft } from "lucide-react";
+import { AuthContext } from "../../context/AuthContext";
 
 const LoginPage = () => {
   const [currentState, setCurrentState] = useState("Sign Up");
@@ -11,6 +12,8 @@ const LoginPage = () => {
   });
   const [isDataSubmitted, setIsDataSubmitted] = useState(false);
 
+  const { login } = useContext(AuthContext);
+
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -18,6 +21,8 @@ const LoginPage = () => {
       setIsDataSubmitted(true);
       return;
     }
+
+    login(currentState === "Sign Up" ? "signup" : "login", userCredentials);
   };
 
   return (
