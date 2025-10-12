@@ -129,7 +129,6 @@ const ChatContainer = () => {
             accept="image/png, image/jpeg"
             hidden
             onChange={handleSendImage}
-
           />
           {/* <label htmlFor="send-images">
             <ImagePlus
@@ -149,7 +148,8 @@ const ChatContainer = () => {
       </div>
     </div>
   ) : (
-    <div className="h-[100vh] border-2 flex flex-col justify-center items-center gap-4">
+    // Placeholder UI displayed when no chat is selected
+    <div className="h-[100vh] flex flex-col justify-center items-center gap-4">
       <MessageSquare width={65} height={65} color="gray" />
       <div className="text-center">
         <p className="text-xl text-gray-600 font-semibold">Ping Me</p>
