@@ -91,7 +91,7 @@ export const login = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      //   userData,
+      userData,
       message: "User Logged in successfully",
     });
   } catch (error) {
@@ -103,6 +103,20 @@ export const login = async (req, res) => {
       message: error.message,
     });
   }
+};
+
+// logout
+export const logout = (req, res) => {
+  res.cookie("token", "", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "pro",
+    sameSite: "Strict",
+    expires: new Date(0),
+  });
+
+  return res
+    .status(200)
+    .json({ success: true, message: "Logged out successfully" });
 };
 
 // Checks if user is authenticated
