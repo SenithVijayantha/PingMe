@@ -55,7 +55,7 @@ const ChatContainer = () => {
   }, [messages]);
 
   return selectedUser ? (
-    <div className=" flex flex-col h-screen mx-4">
+    <div className=" flex flex-col justify-between h-screen mx-4">
       {/* Header */}
       <div className="flex items-center gap-3 py-3 border-b border-accent-content">
         <img
@@ -72,7 +72,7 @@ const ChatContainer = () => {
       </div>
 
       {/* Chat area */}
-      <div className="overflow-y-scroll py-8">
+      <div className="overflow-y-scroll py-8 h-screen">
         {messages.map((msg, index) => (
           <div
             key={index}
