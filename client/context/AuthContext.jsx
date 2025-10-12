@@ -18,16 +18,20 @@ export const AuthProvider = ({ children }) => {
   // checks if user is authenticated
   const checkAuth = async () => {
     try {
-      const { data } = await axios.get("/api/auth/check");
+      const { data } = await axios.get("/api/auth/check", {
+        withCredentials: true,
+      });
       if (data.success) {
         setAuthUser(data.user);
         connectSocket(data.user);
-      }
-      if (!data.success) {
+      } else {
         setAuthUser(null);
       }
     } catch (error) {
       toast.error(error.message);
+      console.error(error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -54,7 +58,7 @@ export const AuthProvider = ({ children }) => {
     if (data.success) {
       setAuthUser(null);
       setOnlineUsers([]);
-      socket.disconnect();
+      socket?.disconnect();
       toast.success(data.message);
     }
   };
@@ -91,6 +95,12 @@ export const AuthProvider = ({ children }) => {
     checkAuth();
   }, []);
 
+  useEffect(() => {
+    if (authUser) {
+      connectSocket(authUser);
+    }
+  }, [authUser]);
+
   const value = {
     axios,
     authUser,
@@ -99,6 +109,7 @@ export const AuthProvider = ({ children }) => {
     login,
     logout,
     updateProfile,
+    loading,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

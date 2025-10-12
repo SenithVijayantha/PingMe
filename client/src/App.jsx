@@ -8,7 +8,16 @@ import ProfilePage from "./pages/ProfilePage";
 import { AuthContext } from "../context/AuthContext";
 
 const App = () => {
-  const { authUser } = useContext(AuthContext);
+  const { authUser, loading } = useContext(AuthContext);
+
+  if (loading) {
+    return (
+      <div className="h-screen flex justify-center items-center">
+        <span className="loading loading-bars loading-xl"></span>
+      </div>
+    );
+  }
+
   return (
     <div>
       <Toaster />
