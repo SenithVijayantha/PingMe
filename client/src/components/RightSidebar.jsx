@@ -1,8 +1,14 @@
-import React from "react";
+import React, { useContext } from "react";
 import { CircleUser } from "lucide-react";
-import { dummyImagesData } from "../assets/assets.js";
 
-const RightSidebar = ({ selectedUser }) => {
+import { dummyImagesData } from "../assets/assets.js";
+import { ChatContext } from "../../context/ChatContext.jsx";
+import { AuthContext } from "../../context/AuthContext.jsx";
+
+const RightSidebar = () => {
+  const { selectedUser, messages } = useContext(ChatContext);
+  const { logout, onlineUsers } = useContext(AuthContext);
+
   return (
     selectedUser && (
       <div className="pt-8">
@@ -16,14 +22,16 @@ const RightSidebar = ({ selectedUser }) => {
           <CircleUser width={80} height={80} color="gray" className="mx-auto" />
         )}
         <div className=" flex items-center justify-center gap-2 pt-4">
-          <div className="inline-block w-2 h-2 rounded-full bg-primary"></div>
+          {onlineUsers.includes(selectedUser._id) && (
+            <div className="inline-block w-2 h-2 rounded-full bg-primary"></div>
+          )}
           <h1 className="text-center text-xl">{selectedUser.fullName}</h1>
         </div>
         <p className="pt-2 px-10 text-center">{selectedUser.bio}</p>
 
         <div className="divider"></div>
 
-        <div>
+        {/* <div>
           <p className="pb-4">Media</p>
           <div className="max-h-64 grid grid-cols-2 gap-2 overflow-y-scroll">
             {dummyImagesData.map((url, index) => (
@@ -36,10 +44,15 @@ const RightSidebar = ({ selectedUser }) => {
               </div>
             ))}
           </div>
-        </div>
+        </div> */}
 
         <div className="absolute bottom-2 left-0 right-0 flex justify-center pt-2 px-4">
-          <button className="w-full btn btn-sm btn-primary">Logout</button>
+          <button
+            className="w-full btn btn-sm btn-primary"
+            onClick={() => logout()}
+          >
+            Logout
+          </button>
         </div>
       </div>
     )
