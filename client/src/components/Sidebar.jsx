@@ -1,10 +1,12 @@
-import React from "react";
+import React, { useContext } from "react";
 import { EllipsisVertical, CircleUser } from "lucide-react";
 import { useNavigate, Link } from "react-router";
 
 import { icon, dummyUserData, avatarIcon } from "../assets/assets";
+import { AuthContext } from "../../context/AuthContext";
 
 const Sidebar = ({ selectedUser, setSelectedUser }) => {
+  const { logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
   return (
@@ -34,7 +36,7 @@ const Sidebar = ({ selectedUser, setSelectedUser }) => {
                 <Link to={"/profile"}>Edit Profile</Link>
               </li>
               <li>
-                <Link>Logout</Link>
+                <Link onClick={() => logout()}>Logout</Link>
               </li>
             </ul>
           </div>
