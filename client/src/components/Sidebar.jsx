@@ -1,8 +1,8 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { EllipsisVertical, CircleUser } from "lucide-react";
 import { useNavigate, Link } from "react-router";
 
-import { icon, } from "../assets/assets";
+import { icon } from "../assets/assets";
 import { AuthContext } from "../../context/AuthContext";
 import { ChatContext } from "../../context/ChatContext";
 
@@ -24,6 +24,10 @@ const Sidebar = () => {
         user.fullName.toLowerCase().includes(searchInput.toLowerCase())
       )
     : users;
+
+  useEffect(() => {
+    getUsers();
+  }, [onlineUsers]);
 
   return (
     <div className="flex flex-col gap-6">
@@ -108,15 +112,15 @@ const Sidebar = () => {
               )}
               <div className="flex flex-col leading-5">
                 <p>{user.fullName}</p>
-                {index < 3 ? (
+                {onlineUsers.includes(user._id) ? (
                   <span className="text-accent text-xs">Online</span>
                 ) : (
                   <span className="text-gray-400 text-xs">Offline</span>
                 )}
               </div>
-              {index > 2 && (
+              {unseenMessages[user._id] > 0 && (
                 <p className="absolute top-4 right-4 text-xs h-5 w-5 flex justify-center items-center rounded-full bg-accent-content">
-                  {index}
+                  {unseenMessages[user._id]}
                 </p>
               )}
             </div>
