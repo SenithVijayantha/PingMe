@@ -1,4 +1,6 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState, useCallback } from "react";
+import { toast } from "react-hot-toast";
+
 import { AuthContext } from "./AuthContext";
 
 export const ChatContext = createContext();
@@ -59,30 +61,33 @@ export const ChatProvider = ({ children }) => {
   // Listens for incoming messages via socket.
   // If the message is from the selected user, mark it as seen and add it to the chat.
   // Otherwise, increment the unseen message count for that sender.
-  const subscribeToMessages = async () => {
+  const subscribeToMessages = useCallback(() => {
     if (!socket) return;
 
     socket.on("newMessage", (newMessage) => {
       if (selectedUser && newMessage.senderId === selectedUser._id) {
         newMessage.seen = true;
-        setMessages((prevMessages) => [...prevMessages, newMessage]);
-
-        axios.put(`/api/message/mark/${newMessage._id}`);
+        setMessages((prev) => [...prev, newMessage]);
+        axios.put(`/api/messages/mark/${newMessage._id}`);
       } else {
-        setUnseenMessages((prevUnseenMessages) => ({
-          ...prevUnseenMessages,
-          [newMessage.senderId]: prevUnseenMessages[newMessage.senderId]
-            ? prevUnseenMessages[newMessage.senderId] + 1
-            : 1,
+        setUnseenMessages((prev) => ({
+          ...prev,
+          [newMessage.senderId]: (prev[newMessage.senderId] || 0) + 1,
         }));
       }
     });
-  };
+  }, [socket, selectedUser, axios]);
 
   // Removes the 'newMessage' event listener to stop receiving real-time messages
-  const unsubscribeFromMessages = () => {
+  const unsubscribeFromMessages = useCallback(() => {
     if (socket) socket.off("newMessage");
-  };
+  }, [socket]);
+
+  useEffect(() => {
+    if (!socket) return;
+    subscribeToMessages();
+    return () => unsubscribeFromMessages();
+  }, [socket, selectedUser]);
 
   const value = {};
 
