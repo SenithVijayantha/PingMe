@@ -26,9 +26,7 @@ const LoginPage = () => {
         <div className="text-center lg:text-left">
           <h1 className="text-5xl font-bold">PingMe</h1>
           <p className="py-6 max-w-lg">
-            Provident cupiditate voluptatem et in. Quaerat fugiat ut assumenda
-            excepturi exercitationem quasi. In deleniti eaque aut repudiandae et
-            a id nisi.
+            Connect, share, and explore with PingMe.
           </p>
         </div>
         <div className="card bg-base-100 w-full max-w-sm shrink-0 shadow-2xl">
@@ -36,7 +34,10 @@ const LoginPage = () => {
             <div className="flex items-center justify-between mb-2">
               <h2 className="text-2xl font-semibold ">{currentState}</h2>{" "}
               {isDataSubmitted && (
-                <ArrowLeft onClick={() => setIsDataSubmitted(false)} className="cursor-pointer btn btn-sm p-1 btn-circle" />
+                <ArrowLeft
+                  onClick={() => setIsDataSubmitted(false)}
+                  className="cursor-pointer btn btn-sm p-1 btn-circle"
+                />
               )}
             </div>
             <form action="" onSubmit={handleSubmit}>
@@ -119,7 +120,6 @@ const LoginPage = () => {
                     value={userCredentials.bio}
                     className="textarea w-full resize-none"
                     placeholder="Bio"
-                    
                     onChange={(e) =>
                       setUserCredentials({
                         ...userCredentials,
