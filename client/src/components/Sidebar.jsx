@@ -96,7 +96,10 @@ const Sidebar = () => {
           {filteredUsers.map((user, index) => (
             <div
               key={index}
-              onClick={() => setSelectedUser(user)}
+              onClick={() => {
+                setSelectedUser(user);
+                setUnseenMessages((prev) => ({ ...prev, [user._id]: 0 }));
+              }}
               className={`relative flex items-center gap-2 p-2 pl-4 cursor-pointer ${
                 selectedUser?._id === user._id && "bg-secondary"
               }`}
