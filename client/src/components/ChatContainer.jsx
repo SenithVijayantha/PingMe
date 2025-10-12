@@ -1,12 +1,29 @@
 import React from "react";
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useContext, useState } from "react";
 import { MessageSquare, ImagePlus, Send } from "lucide-react";
 
 import { dummyMessageData, icon, user1 } from "../assets/assets";
 import { formatDate } from "../lib/utils";
+import { ChatContext } from "../../context/ChatContext";
+import { AuthContext } from "../../context/AuthContext";
 
-const ChatContainer = ({ selectedUser, setSelectedUser }) => {
+const ChatContainer = () => {
+  const { messages, selectedUser, setSelectedUser, sendMessages, getMessages } =
+    useContext(ChatContext);
+  const { authUser, onlineUsers } = useContext(AuthContext);
+
   const scrollEnd = useRef();
+
+  const [messageTextInput, setMessageTextInput] = useState("");
+
+  const handleSendMessage = async (e) => {
+    e.preventDefault();
+
+    if (input.trim() === "") return;
+
+    await sendMessages({ text: input.trim() });
+    setMessageTextInput("");
+  };
 
   useEffect(() => {
     if (scrollEnd.current) {
@@ -68,6 +85,9 @@ const ChatContainer = ({ selectedUser, setSelectedUser }) => {
             type="text"
             placeholder="Type a message"
             className="input border-none focus:outline-none w-full"
+            onChange={(e) => setMessageTextInput(e.target.value)}
+            onKeyDown={(e) => (e.key === "Enter" ? handleSendMessage(e) : null)}
+            value={messageTextInput}
           />
           <input
             type="file"
@@ -85,7 +105,10 @@ const ChatContainer = ({ selectedUser, setSelectedUser }) => {
             />
           </label>
         </div>
-        <button className="bg-accent rounded-sm w-8 h-8 flex items-center justify-center cursor-pointer">
+        <button
+          className="bg-accent rounded-sm w-8 h-8 flex items-center justify-center cursor-pointer"
+          onClick={handleSendMessage}
+        >
           <Send width={16} height={16} />
         </button>
       </div>
