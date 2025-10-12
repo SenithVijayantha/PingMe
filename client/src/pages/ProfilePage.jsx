@@ -1,18 +1,43 @@
-import React, { useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { CircleUserRound } from "lucide-react";
 import { useNavigate } from "react-router";
 
+import { AuthContext } from "../../context/AuthContext";
+
 const ProfilePage = () => {
+  const { authUser, updateProfile } = useContext(AuthContext);
   const [selectedImage, setSelectedImage] = useState(null);
   const navigate = useNavigate();
   const [userData, setUserData] = useState({
-    name: "Alex Taylor",
-    bio: "Loving every moment on PingMe",
+    fullName: authUser.fullName,
+    bio: authUser.bio,
   });
+
+  // revoke the previous URL to avoid memory leaks
+  useEffect(() => {
+    return () => {
+      if (selectedImage) URL.revokeObjectURL(selectedImage);
+    };
+  }, [selectedImage]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    navigate("/");
+    if (!selectedImage) {
+      await updateProfile(userData);
+      navigate("/");
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.readAsDataURL(selectedImage);
+    reader.onload = async () => {
+      const base64Image = reader.result;
+      await updateProfile({ profilePic: base64Image, ...userData });
+      navigate("/");
+    };
+    reader.onerror = () => {
+      toast.error("Failed to read the selected image.");
+    };
   };
 
   return (
@@ -53,11 +78,12 @@ const ProfilePage = () => {
 
           <input
             type="text"
-            value={userData.name}
+            value={userData.fullName}
             placeholder="Your Name"
             className="input w-full"
-            name="name"
+            name="fullName"
             required
+            autoComplete="name"
             onChange={(e) =>
               setUserData({ ...userData, [e.target.name]: e.target.value })
             }
