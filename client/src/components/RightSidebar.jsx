@@ -31,20 +31,25 @@ const RightSidebar = () => {
 
         <div className="divider"></div>
 
-        {/* <div>
+        <div>
           <p className="pb-4">Media</p>
           <div className="max-h-64 grid grid-cols-2 gap-2 overflow-y-scroll">
-            {dummyImagesData.map((url, index) => (
-              <div
-                key={index}
-                onClick={() => window.open(url)}
-                className="cursor-pointer"
-              >
-                <img src={url} alt="" className="h-full rounded-md" />
-              </div>
-            ))}
+            {messages
+              .filter((msg) => msg.image)
+              .map((msg, index) => (
+                <div
+                  key={index}
+                  onClick={() => window.open(msg.image)}
+                  className="cursor-pointer"
+                >
+                  <img src={msg.image} alt="" className="h-full rounded-md" />
+                </div>
+              ))}
           </div>
-        </div> */}
+          {messages.filter((msg) => msg.image).length === 0 && (
+            <p className="text-center text-gray-500">No media found.</p>
+          )}
+        </div>
 
         <div className="absolute bottom-2 left-0 right-0 flex justify-center pt-2 px-4">
           <button

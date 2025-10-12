@@ -16,6 +16,7 @@ export const ChatProvider = ({ children }) => {
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [unseenMessages, setUnseenMessages] = useState({});
+  const [isUploading, setIsUploading] = useState(false);
 
   const { socket, axios } = useContext(AuthContext);
 
@@ -48,6 +49,9 @@ export const ChatProvider = ({ children }) => {
 
   //   send messages to selected user
   const sendMessage = async (messageData) => {
+    if (messageData.image) {
+      setIsUploading(true);
+    }
     try {
       const { data } = await axios.post(
         `/api/messages/send/${selectedUser._id}`,
@@ -61,6 +65,9 @@ export const ChatProvider = ({ children }) => {
     } catch (error) {
       console.error(error);
       toast.error("Failed to send the message");
+    }
+    finally {
+      setIsUploading(false);
     }
   };
 
@@ -105,6 +112,7 @@ export const ChatProvider = ({ children }) => {
     setSelectedUser,
     unseenMessages,
     setUnseenMessages,
+    isUploading,
   };
 
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;

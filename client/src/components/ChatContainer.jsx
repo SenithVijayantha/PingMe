@@ -8,7 +8,7 @@ import { ChatContext } from "../../context/ChatContext";
 import { AuthContext } from "../../context/AuthContext";
 
 const ChatContainer = () => {
-  const { messages, selectedUser, setSelectedUser, sendMessage, getMessages } =
+  const { messages, selectedUser, setSelectedUser, sendMessage, getMessages, isUploading } =
     useContext(ChatContext);
   const { authUser, onlineUsers } = useContext(AuthContext);
 
@@ -130,20 +130,25 @@ const ChatContainer = () => {
             hidden
             onChange={handleSendImage}
           />
-          {/* <label htmlFor="send-images">
+          <label htmlFor="send-images">
             <ImagePlus
               width={24}
               height={24}
               color="gray"
               className="cursor-pointer"
             />
-          </label> */}
+          </label>
         </div>
         <button
           className="bg-accent rounded-sm w-8 h-8 flex items-center justify-center cursor-pointer"
           onClick={handleSendMessage}
+          disabled={isUploading}
         >
-          <Send width={16} height={16} />
+          {isUploading ? (
+            <span className="loading loading-spinner"></span>
+          ) : (
+            <Send width={16} height={16} />
+          )}
         </button>
       </div>
     </div>
