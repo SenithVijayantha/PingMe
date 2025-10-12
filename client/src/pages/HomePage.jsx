@@ -1,5 +1,5 @@
 import React, { useContext, useState } from "react";
-import { PanelLeftOpen, PanelRightOpen } from "lucide-react";
+import { Menu, EllipsisVertical } from "lucide-react";
 
 import Sidebar from "../components/Sidebar";
 import ChatContainer from "../components/ChatContainer";
@@ -21,8 +21,8 @@ const HomePage = () => {
           />
           <div className="drawer-content">
             {/* Page content here */}
-            <label htmlFor="my-drawer-left" className="lg:hidden drawer-button">
-              <PanelLeftOpen />
+            <label htmlFor="my-drawer-left" className="lg:hidden drawer-button relative left-1 top-4">
+              <Menu />
             </label>
           </div>
           <div className="drawer-side">
@@ -53,9 +53,9 @@ const HomePage = () => {
             {/* Page content here */}
             <label
               htmlFor="my-drawer-right"
-              className="lg:hidden drawer-button"
+              className="lg:hidden drawer-button relative top-4 right-2"
             >
-              <PanelRightOpen />
+              <EllipsisVertical />
             </label>
           </div>
           <div className="drawer-side">
