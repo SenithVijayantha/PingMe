@@ -1,13 +1,29 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { EllipsisVertical, CircleUser } from "lucide-react";
 import { useNavigate, Link } from "react-router";
 
-import { icon, dummyUserData, avatarIcon } from "../assets/assets";
+import { icon, } from "../assets/assets";
 import { AuthContext } from "../../context/AuthContext";
+import { ChatContext } from "../../context/ChatContext";
 
-const Sidebar = ({ selectedUser, setSelectedUser }) => {
-  const { logout } = useContext(AuthContext);
+const Sidebar = () => {
+  const {
+    getUsers,
+    users,
+    selectedUser,
+    setSelectedUser,
+    unseenMessages,
+    setUnseenMessages,
+  } = useContext(ChatContext);
+  const { logout, onlineUsers } = useContext(AuthContext);
+  const [searchInput, setSearchInput] = useState(false);
   const navigate = useNavigate();
+
+  const filteredUsers = searchInput
+    ? users.filter((user) =>
+        user.fullName.toLowerCase().includes(searchInput.toLowerCase())
+      )
+    : users;
 
   return (
     <div className="flex flex-col gap-6">
@@ -62,12 +78,17 @@ const Sidebar = ({ selectedUser, setSelectedUser }) => {
               <path d="m21 21-4.3-4.3"></path>
             </g>
           </svg>
-          <input type="search" required placeholder="Search User..." />
+          <input
+            type="search"
+            required
+            placeholder="Search User..."
+            onChange={(e) => setSearchInput(e.target.value)}
+          />
         </label>
 
         {/* Chats */}
         <div className="flex flex-col mt-2">
-          {dummyUserData.map((user, index) => (
+          {filteredUsers.map((user, index) => (
             <div
               key={index}
               onClick={() => setSelectedUser(user)}
