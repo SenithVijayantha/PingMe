@@ -1,7 +1,6 @@
 import React, { useContext } from "react";
 import { CircleUser } from "lucide-react";
 
-import { dummyImagesData } from "../assets/assets.js";
 import { ChatContext } from "../../context/ChatContext.jsx";
 import { AuthContext } from "../../context/AuthContext.jsx";
 
