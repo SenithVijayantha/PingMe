@@ -18,7 +18,7 @@ app.use(express.json({ limit: "4mb" }));
 app.use(cookieParser());
 app.use(
   cors({
-    origin: "http://localhost:5173", // frontend origin
+    origin: "https://chat-app-w1a6.vercel.app", // frontend origin
     credentials: true, // allow cookies to be sent
   })
 );
