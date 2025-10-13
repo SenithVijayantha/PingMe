@@ -63,7 +63,12 @@ io.on("connection", (socket) => {
 // connect DB and start server
 try {
   await connectDB();
-  server.listen(port, () => console.log("Server started on PORT:", port));
+  if (process.env.NODE_ENV === "dev") {
+    server.listen(port, () => console.log("Server started on PORT:", port));
+  }
 } catch (error) {
   console.error(error);
 }
+
+// Export server for Vercel
+export default server;
