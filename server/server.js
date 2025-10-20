@@ -18,7 +18,7 @@ app.use(express.json({ limit: "4mb" }));
 app.use(cookieParser());
 app.use(
   cors({
-    origin: "https://pingme-frontend-six.vercel.app", // frontend origin
+    origin: process.env.FRONTEND_URL, // frontend origin
     credentials: true, // allow cookies to be sent
   })
 );
