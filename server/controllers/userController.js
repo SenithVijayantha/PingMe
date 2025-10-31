@@ -4,7 +4,7 @@ import { generateToken } from "../lib/utils.js";
 import User from "../models/userModel.js";
 import cloudinary from "../config/cloudinary.js";
 
-const isProduction = process.env.NODE_ENV === "prod";
+const isProduction = process.env.NODE_ENV === "production";
 
 // Sign up
 export const signup = async (req, res) => {
@@ -109,7 +109,7 @@ export const login = async (req, res) => {
 export const logout = (req, res) => {
   res.cookie("token", "", {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "pro",
+    secure: process.env.NODE_ENV === "production",
     sameSite: "Strict",
     expires: new Date(0),
   });

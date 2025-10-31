@@ -13,12 +13,17 @@ const app = express();
 const port = process.env.PORT || 5001;
 // const server = http.createServer(app);
 
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://pingme-frontend-six.vercel.app" // no trailing slash
+];
+
 // Middleware
 app.use(express.json({ limit: "4mb" }));
 app.use(cookieParser());
 app.use(
   cors({
-    origin: "https://pingme-frontend-six.vercel.app/", // frontend origin
+    origin: allowedOrigins, // frontend origin
     credentials: true, // allow cookies to be sent
   })
 );
