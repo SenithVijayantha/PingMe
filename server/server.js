@@ -24,6 +24,7 @@ app.use(cookieParser());
 app.use(
   cors({
     origin: allowedOrigins, // frontend origin
+    origin: process.env.FRONTEND_URL, // frontend origin
     credentials: true, // allow cookies to be sent
   })
 );
