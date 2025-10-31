@@ -15,7 +15,7 @@ const port = process.env.PORT || 5001;
 
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://pingme-frontend-six.vercel.app" // no trailing slash
+  "https://ping-me-liyw.vercel.app" // no trailing slash
 ];
 
 // Middleware
