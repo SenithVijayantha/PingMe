@@ -15,6 +15,7 @@ const port = process.env.PORT || 5001;
 
 const allowedOrigins = [
   "http://localhost:5173",
+  "http://127.0.0.1:5173",
   "https://ping-me-liyw.vercel.app" // no trailing slash
 ];
 
@@ -29,7 +30,7 @@ app.use(
 );
 
 // routes
-app.use("/api/status", (req, res) => {
+app.get("/api/status", (req, res) => {
   res.send("Server is listening");
 });
 app.use("/api/auth", userRouter);
@@ -68,6 +69,8 @@ io.on("connection", (socket) => {
 // connect DB and start server
 try {
   await connectDB();
+  // Vercel provides the HTTP listener for the exported server; only bind a
+  // port when running locally (`npm run server` / `npm start`).
   if (process.env.NODE_ENV === "dev") {
     server.listen(port, () => console.log("Server started on PORT:", port));
   }
