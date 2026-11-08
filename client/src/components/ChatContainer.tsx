@@ -1,22 +1,28 @@
-import React from "react";
-import { useRef, useEffect, useContext, useState } from "react";
+import { useRef, useEffect, useState } from "react";
+import type { ChangeEvent, SyntheticEvent } from "react";
 import { MessageSquare, ImagePlus, Send } from "lucide-react";
+import toast from "react-hot-toast";
 
 import { avatarIcon } from "../assets/assets";
 import { formatDate } from "../lib/utils";
-import { ChatContext } from "../../context/ChatContext";
-import { AuthContext } from "../../context/AuthContext";
+import { useChat } from "../../context/ChatContext";
+import { useAuth } from "../../context/AuthContext";
 
 const ChatContainer = () => {
-  const { messages, selectedUser, setSelectedUser, sendMessage, getMessages, isUploading } =
-    useContext(ChatContext);
-  const { authUser, onlineUsers } = useContext(AuthContext);
+  const {
+    messages,
+    selectedUser,
+    sendMessage,
+    getMessages,
+    isUploading,
+  } = useChat();
+  const { authUser, onlineUsers } = useAuth();
 
-  const scrollEnd = useRef();
+  const scrollEnd = useRef<HTMLDivElement>(null);
 
   const [messageTextInput, setMessageTextInput] = useState("");
 
-  const handleSendMessage = async (e) => {
+  const handleSendMessage = async (e: SyntheticEvent) => {
     e.preventDefault();
 
     if (messageTextInput.trim() === "") return;
@@ -25,8 +31,9 @@ const ChatContainer = () => {
     setMessageTextInput("");
   };
 
-  const handleSendImage = async (e) => {
-    const file = e.target.files[0];
+  const handleSendImage = async (e: ChangeEvent<HTMLInputElement>) => {
+    const input = e.target;
+    const file = input.files?.[0];
 
     if (!file || !file.type.startsWith("image/")) {
       toast.error("Select an image file");
@@ -36,8 +43,10 @@ const ChatContainer = () => {
     const reader = new FileReader();
 
     reader.onloadend = async () => {
-      await sendMessage({ image: reader.result });
-      e.target.value = "";
+      if (typeof reader.result === "string") {
+        await sendMessage({ image: reader.result });
+      }
+      input.value = "";
     };
     reader.readAsDataURL(file);
   };
@@ -53,6 +62,8 @@ const ChatContainer = () => {
       scrollEnd.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages]);
+
+  if (!authUser) return null;
 
   return selectedUser ? (
     <div className=" flex flex-col justify-between h-screen mx-4">

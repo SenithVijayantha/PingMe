@@ -1,10 +1,15 @@
-import React, { useContext, useState } from "react";
+import { useState } from "react";
+import type { FormEvent } from "react";
 import { ArrowLeft } from "lucide-react";
-import { AuthContext } from "../../context/AuthContext";
+
+import { useAuth } from "../../context/AuthContext";
+import type { UserCredentials } from "../types";
 
 const LoginPage = () => {
-  const [currentState, setCurrentState] = useState("Sign Up");
-  const [userCredentials, setUserCredentials] = useState({
+  const [currentState, setCurrentState] = useState<"Sign Up" | "Login">(
+    "Sign Up"
+  );
+  const [userCredentials, setUserCredentials] = useState<UserCredentials>({
     fullName: "",
     email: "",
     password: "",
@@ -12,9 +17,9 @@ const LoginPage = () => {
   });
   const [isDataSubmitted, setIsDataSubmitted] = useState(false);
 
-  const { login } = useContext(AuthContext);
+  const { login } = useAuth();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (currentState === "Sign Up" && isDataSubmitted === false) {
@@ -22,7 +27,10 @@ const LoginPage = () => {
       return;
     }
 
-    login(currentState === "Sign Up" ? "signup" : "login", userCredentials);
+    void login(
+      currentState === "Sign Up" ? "signup" : "login",
+      userCredentials
+    );
   };
 
   return (

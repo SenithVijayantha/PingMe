@@ -1,14 +1,14 @@
-import React, { useContext } from "react";
 import { Routes, Route, Navigate } from "react-router";
 import { Toaster } from "react-hot-toast";
+
+import { useAuth } from "../context/AuthContext";
 
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
 import ProfilePage from "./pages/ProfilePage";
-import { AuthContext } from "../context/AuthContext";
 
 const App = () => {
-  const { authUser, loading } = useContext(AuthContext);
+  const { authUser, loading } = useAuth();
 
   if (loading) {
     return (

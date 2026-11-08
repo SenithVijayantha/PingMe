@@ -10,7 +10,9 @@ import pic3 from "./pic3.png";
 import pic4 from "./pic4.png";
 import avatarIcon from "./avatar-icon.svg";
 
-const dummyUserData = [
+import type { Message, User } from "../types";
+
+const dummyUserData: User[] = [
   {
     _id: "680f50aaf10f3cd28382ecf2",
     email: "alex.taylor@pingme.dev",
@@ -55,7 +57,7 @@ const dummyUserData = [
   },
 ];
 
-const dummyMessageData = [
+const dummyMessageData: Message[] = [
   {
     _id: "680f571ff10f3cd28382f094",
     senderId: "680f5116f10f3cd28382ed02",
@@ -114,7 +116,7 @@ const dummyMessageData = [
   },
 ];
 
-const dummyImagesData = [
+const dummyImagesData: string[] = [
   pic1,
   pic2,
   pic3,

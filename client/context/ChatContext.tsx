@@ -5,20 +5,35 @@ import {
   useState,
   useCallback,
 } from "react";
-import { toast } from "react-hot-toast";
+import type { Dispatch, ReactNode, SetStateAction } from "react";
+import toast from "react-hot-toast";
 
-import { AuthContext } from "./AuthContext";
+import { useAuth } from "./AuthContext";
+import type { Message, UnseenMessages, User } from "../src/types";
 
-export const ChatContext = createContext();
+export interface ChatContextValue {
+  messages: Message[];
+  users: User[];
+  selectedUser: User | null;
+  getUsers: () => Promise<void>;
+  sendMessage: (messageData: { text?: string; image?: string }) => Promise<void>;
+  getMessages: (userId: string) => Promise<void>;
+  setSelectedUser: Dispatch<SetStateAction<User | null>>;
+  unseenMessages: UnseenMessages;
+  setUnseenMessages: Dispatch<SetStateAction<UnseenMessages>>;
+  isUploading: boolean;
+}
 
-export const ChatProvider = ({ children }) => {
-  const [messages, setMessages] = useState([]);
-  const [users, setUsers] = useState([]);
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [unseenMessages, setUnseenMessages] = useState({});
+export const ChatContext = createContext<ChatContextValue | null>(null);
+
+export const ChatProvider = ({ children }: { children: ReactNode }) => {
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [unseenMessages, setUnseenMessages] = useState<UnseenMessages>({});
   const [isUploading, setIsUploading] = useState(false);
 
-  const { socket, axios } = useContext(AuthContext);
+  const { socket, axios } = useAuth();
 
   //   get all users for sidebar
   const getUsers = async () => {
@@ -35,7 +50,7 @@ export const ChatProvider = ({ children }) => {
   };
 
   //   get messages for selected users
-  const getMessages = async (userId) => {
+  const getMessages = async (userId: string) => {
     try {
       const { data } = await axios.get(`/api/messages/${userId}`);
       if (data.success) {
@@ -48,7 +63,9 @@ export const ChatProvider = ({ children }) => {
   };
 
   //   send messages to selected user
-  const sendMessage = async (messageData) => {
+  const sendMessage = async (messageData: { text?: string; image?: string }) => {
+    if (!selectedUser) return;
+
     if (messageData.image) {
       setIsUploading(true);
     }
@@ -65,8 +82,7 @@ export const ChatProvider = ({ children }) => {
     } catch (error) {
       console.error(error);
       toast.error("Failed to send the message");
-    }
-    finally {
+    } finally {
       setIsUploading(false);
     }
   };
@@ -77,7 +93,7 @@ export const ChatProvider = ({ children }) => {
   const subscribeToMessages = useCallback(() => {
     if (!socket) return;
 
-    socket.on("newMessage", (newMessage) => {
+    socket.on("newMessage", (newMessage: Message) => {
       if (selectedUser && newMessage.senderId === selectedUser._id) {
         newMessage.seen = true;
         setMessages((prev) => [...prev, newMessage]);
@@ -100,9 +116,9 @@ export const ChatProvider = ({ children }) => {
     if (!socket) return;
     subscribeToMessages();
     return () => unsubscribeFromMessages();
-  }, [socket, selectedUser]);
+  }, [socket, selectedUser, subscribeToMessages, unsubscribeFromMessages]);
 
-  const value = {
+  const value: ChatContextValue = {
     messages,
     users,
     selectedUser,
@@ -116,4 +132,12 @@ export const ChatProvider = ({ children }) => {
   };
 
   return <ChatContext.Provider value={value}>{children}</ChatContext.Provider>;
+};
+
+export const useChat = (): ChatContextValue => {
+  const context = useContext(ChatContext);
+  if (!context) {
+    throw new Error("useChat must be used within a ChatProvider");
+  }
+  return context;
 };

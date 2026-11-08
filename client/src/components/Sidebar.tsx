@@ -1,10 +1,10 @@
-import React, { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { EllipsisVertical, CircleUser } from "lucide-react";
-import { useNavigate, Link } from "react-router";
+import { Link } from "react-router";
 
 import { icon } from "../assets/assets";
-import { AuthContext } from "../../context/AuthContext";
-import { ChatContext } from "../../context/ChatContext";
+import { useAuth } from "../../context/AuthContext";
+import { useChat } from "../../context/ChatContext";
 
 const Sidebar = () => {
   const {
@@ -14,10 +14,9 @@ const Sidebar = () => {
     setSelectedUser,
     unseenMessages,
     setUnseenMessages,
-  } = useContext(ChatContext);
-  const { logout, onlineUsers } = useContext(AuthContext);
-  const [searchInput, setSearchInput] = useState(false);
-  const navigate = useNavigate();
+  } = useChat();
+  const { logout, onlineUsers } = useAuth();
+  const [searchInput, setSearchInput] = useState("");
 
   const filteredUsers = searchInput
     ? users.filter((user) =>
@@ -56,7 +55,9 @@ const Sidebar = () => {
                 <Link to={"/profile"}>Edit Profile</Link>
               </li>
               <li>
-                <Link onClick={() => logout()}>Logout</Link>
+                <Link to="/login" onClick={() => logout()}>
+                  Logout
+                </Link>
               </li>
             </ul>
           </div>
@@ -101,7 +102,7 @@ const Sidebar = () => {
                 setUnseenMessages((prev) => ({ ...prev, [user._id]: 0 }));
               }}
               className={`relative flex items-center gap-2 p-2 pl-4 cursor-pointer rounded-lg ${
-                selectedUser?._id === user._id && "bg-secondary"
+                selectedUser?._id === user._id ? "bg-secondary" : ""
               }`}
             >
               {user?.profilePic ? (

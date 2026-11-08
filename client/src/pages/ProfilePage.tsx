@@ -1,26 +1,35 @@
-import React, { useContext, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
+import type { FormEvent } from "react";
 import { CircleUserRound } from "lucide-react";
 import { useNavigate } from "react-router";
+import toast from "react-hot-toast";
 
-import { AuthContext } from "../../context/AuthContext";
+import { useAuth } from "../../context/AuthContext";
 
 const ProfilePage = () => {
-  const { authUser, updateProfile } = useContext(AuthContext);
-  const [selectedImage, setSelectedImage] = useState(null);
+  const { authUser, updateProfile } = useAuth();
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const navigate = useNavigate();
   const [userData, setUserData] = useState({
-    fullName: authUser.fullName,
-    bio: authUser.bio,
+    fullName: authUser?.fullName ?? "",
+    bio: authUser?.bio ?? "",
   });
 
-  // revoke the previous URL to avoid memory leaks
+  // Create a preview URL for the selected image and revoke it when it changes
   useEffect(() => {
-    return () => {
-      if (selectedImage) URL.revokeObjectURL(selectedImage);
-    };
+    if (!selectedImage) {
+      setPreviewUrl(null);
+      return;
+    }
+
+    const objectUrl = URL.createObjectURL(selectedImage);
+    setPreviewUrl(objectUrl);
+
+    return () => URL.revokeObjectURL(objectUrl);
   }, [selectedImage]);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!selectedImage) {
       await updateProfile(userData);
@@ -32,8 +41,10 @@ const ProfilePage = () => {
     reader.readAsDataURL(selectedImage);
     reader.onload = async () => {
       const base64Image = reader.result;
-      await updateProfile({ profilePic: base64Image, ...userData });
-      navigate("/");
+      if (typeof base64Image === "string") {
+        await updateProfile({ profilePic: base64Image, ...userData });
+        navigate("/");
+      }
     };
     reader.onerror = () => {
       toast.error("Failed to read the selected image.");
@@ -52,12 +63,15 @@ const ProfilePage = () => {
               id="send-images"
               accept=".png, .jpg, .jpeg"
               hidden
-              onChange={(e) => setSelectedImage(e.target.files[0])}
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) setSelectedImage(file);
+              }}
             />
             <label htmlFor="send-images" className="flex items-center">
-              {selectedImage ? (
+              {previewUrl ? (
                 <img
-                  src={URL.createObjectURL(selectedImage)}
+                  src={previewUrl}
                   alt=""
                   className="w-10 h-10 rounded-full object-cover"
                 />

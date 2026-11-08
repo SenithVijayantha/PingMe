@@ -1,13 +1,13 @@
-import React, { useContext, useState } from "react";
 import { Menu, EllipsisVertical } from "lucide-react";
+
+import { useChat } from "../../context/ChatContext";
 
 import Sidebar from "../components/Sidebar";
 import ChatContainer from "../components/ChatContainer";
 import RightSidebar from "../components/RightSidebar";
-import { ChatContext } from "../../context/ChatContext";
 
 const HomePage = () => {
-  const { selectedUser } = useContext(ChatContext);
+  const { selectedUser } = useChat();
 
   return (
     <div className="flex w-full h-screen justify-between overflow-hidden">
