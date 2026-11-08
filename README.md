@@ -1,4 +1,4 @@
-# Chat App
+# PingMe
 
 This is a full-stack real-time chat application built with the MERN stack (MongoDB, Express, React, Node.js) and Socket.io.
 
@@ -42,8 +42,8 @@ This is a full-stack real-time chat application built with the MERN stack (Mongo
 1.  **Clone the repository:**
 
     ```bash
-    git clone https://github.com/your-username/chat-app.git
-    cd chat-app
+    git clone https://github.com/SenithVijayantha/PingMe.git
+    cd PingMe
     ```
 
 2.  **Install server dependencies:**
