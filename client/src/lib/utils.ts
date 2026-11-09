@@ -1,4 +1,6 @@
-export function formatDate(date) {
+export { cn } from "cn"
+
+export function formatDate(date: string | Date): string {
   return new Date(date).toLocaleTimeString("en-US", {
     hour: "2-digit",
     minute: "2-digit",
