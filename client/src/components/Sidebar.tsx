@@ -1,4 +1,11 @@
-import { useEffect, useState } from "react";
+import {
+  memo,
+  useCallback,
+  useDeferredValue,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import {
   CircleUser,
   EllipsisVertical,
@@ -8,9 +15,10 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router";
 
-import { icon } from "../assets/assets";
+import icon from "../assets/icon.svg";
 import { useAuth } from "../../context/AuthContext";
 import { useChat } from "../../context/ChatContext";
+import type { User } from "../types";
 import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
 import { Badge } from "../components/ui/badge";
@@ -25,6 +33,73 @@ import {
 import { Input } from "../components/ui/input";
 import { ScrollArea } from "../components/ui/scroll-area";
 
+const preloadProfilePage = () => {
+  void import("../pages/ProfilePage");
+};
+
+type UserRowProps = {
+  user: User;
+  isSelected: boolean;
+  isOnline: boolean;
+  unseenCount: number;
+  onSelect: (user: User) => void;
+};
+
+// Memoized so one user's status/count update does not re-render every row.
+const UserRow = memo(function UserRow({
+  user,
+  isSelected,
+  isOnline,
+  unseenCount,
+  onSelect,
+}: UserRowProps) {
+  return (
+    <button
+      type="button"
+      onClick={() => onSelect(user)}
+      className={cn(
+        "flex w-full items-center gap-3 rounded-md px-2 py-2 text-left transition-colors hover:bg-accent focus-visible:bg-accent focus-visible:outline-none",
+        isSelected && "bg-accent"
+      )}
+    >
+      <Avatar className="size-9">
+        {user.profilePic ? (
+          <AvatarImage src={user.profilePic} alt={user.fullName} />
+        ) : null}
+        <AvatarFallback>
+          <CircleUser className="size-4" />
+        </AvatarFallback>
+      </Avatar>
+
+      <div className="min-w-0 flex-1">
+        <p className="truncate text-sm font-medium">{user.fullName}</p>
+        <p
+          className={cn(
+            "flex items-center gap-1.5 text-xs",
+            isOnline
+              ? "text-emerald-600 dark:text-emerald-400"
+              : "text-muted-foreground"
+          )}
+        >
+          <span
+            className={cn(
+              "size-1.5 rounded-full",
+              isOnline ? "bg-emerald-500" : "bg-muted-foreground/40"
+            )}
+          />
+          {isOnline ? "Online" : "Offline"}
+        </p>
+      </div>
+
+      {unseenCount > 0 ? (
+        <Badge className="rounded-full bg-primary px-1.5 py-0.5 text-[10px] leading-none text-primary-foreground">
+          {unseenCount}
+        </Badge>
+      ) : null}
+    </button>
+  );
+});
+
 const Sidebar = () => {
   const {
     getUsers,
@@ -36,16 +111,38 @@ const Sidebar = () => {
   } = useChat();
   const { logout, onlineUsers } = useAuth();
   const [searchInput, setSearchInput] = useState("");
+  const deferredSearchInput = useDeferredValue(searchInput);
   const navigate = useNavigate();
 
-  const filteredUsers = searchInput
-    ? users.filter((user) =>
-        user.fullName.toLowerCase().includes(searchInput.toLowerCase())
-      )
-    : users;
+  const normalizedQuery = deferredSearchInput.trim().toLowerCase();
+
+  const onlineUserIds = useMemo(() => new Set(onlineUsers), [onlineUsers]);
+
+  const filteredUsers = useMemo(
+    () =>
+      normalizedQuery
+        ? users.filter((user) =>
+            user.fullName.toLowerCase().includes(normalizedQuery)
+          )
+        : users,
+    [users, normalizedQuery]
+  );
+
+  const handleSelectUser = useCallback(
+    (user: User) => {
+      setSelectedUser(user);
+      setUnseenMessages((prev) => {
+        if (!prev[user._id]) return prev;
+        return { ...prev, [user._id]: 0 };
+      });
+    },
+    [setSelectedUser, setUnseenMessages]
+  );
 
   useEffect(() => {
-    getUsers();
+    void getUsers();
+    // getUsers is intentionally omitted: the chat provider recreates it on
+    // every render, so depending on it would trigger a fetch loop.
   }, [onlineUsers]);
 
   return (
@@ -68,7 +165,11 @@ const Sidebar = () => {
             <EllipsisVertical />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-44">
-            <DropdownMenuItem onClick={() => navigate("/profile")}>
+            <DropdownMenuItem
+              onClick={() => navigate("/profile")}
+              onMouseEnter={preloadProfilePage}
+              onFocus={preloadProfilePage}
+            >
               <Pencil />
               Edit Profile
             </DropdownMenuItem>
@@ -103,69 +204,22 @@ const Sidebar = () => {
       {/* Chats */}
       <ScrollArea className="min-h-0 flex-1 overflow-hidden">
         <div className="flex flex-col gap-1 px-2 pb-3">
-          {filteredUsers.map((user) => {
-            const isSelected = selectedUser?._id === user._id;
-            const isOnline = onlineUsers.includes(user._id);
-            const unseenCount = unseenMessages[user._id] ?? 0;
+          {filteredUsers.map((user) => (
+            <UserRow
+              key={user._id}
+              user={user}
+              isSelected={selectedUser?._id === user._id}
+              isOnline={onlineUserIds.has(user._id)}
+              unseenCount={unseenMessages[user._id] ?? 0}
+              onSelect={handleSelectUser}
+            />
+          ))}
 
-            return (
-              <button
-                key={user._id}
-                type="button"
-                onClick={() => {
-                  setSelectedUser(user);
-                  setUnseenMessages((prev) => ({ ...prev, [user._id]: 0 }));
-                }}
-                className={cn(
-                  "flex w-full items-center gap-3 rounded-md px-2 py-2 text-left transition-colors hover:bg-accent focus-visible:bg-accent focus-visible:outline-none",
-                  isSelected && "bg-accent"
-                )}
-              >
-                <Avatar className="size-9">
-                  {user.profilePic ? (
-                    <AvatarImage src={user.profilePic} alt={user.fullName} />
-                  ) : null}
-                  <AvatarFallback>
-                    <CircleUser className="size-4" />
-                  </AvatarFallback>
-                </Avatar>
-
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium">
-                    {user.fullName}
-                  </p>
-                  <p
-                    className={cn(
-                      "flex items-center gap-1.5 text-xs",
-                      isOnline
-                        ? "text-emerald-600 dark:text-emerald-400"
-                        : "text-muted-foreground"
-                    )}
-                  >
-                    <span
-                      className={cn(
-                        "size-1.5 rounded-full",
-                        isOnline ? "bg-emerald-500" : "bg-muted-foreground/40"
-                      )}
-                    />
-                    {isOnline ? "Online" : "Offline"}
-                  </p>
-                </div>
-
-                {unseenCount > 0 && (
-                  <Badge className="rounded-full bg-primary px-1.5 py-0.5 text-[10px] leading-none text-primary-foreground">
-                    {unseenCount}
-                  </Badge>
-                )}
-              </button>
-            );
-          })}
-
-          {filteredUsers.length === 0 && (
+          {filteredUsers.length === 0 ? (
             <p className="px-2 py-6 text-center text-sm text-muted-foreground">
               No users found.
             </p>
-          )}
+          ) : null}
         </div>
       </ScrollArea>
     </div>
