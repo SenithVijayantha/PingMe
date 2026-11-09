@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { CircleUser, LogOut } from "lucide-react";
 
 import { useChat } from "../../context/ChatContext";
@@ -11,8 +12,12 @@ const RightSidebar = () => {
   const { selectedUser, messages } = useChat();
   const { logout, onlineUsers } = useAuth();
 
-  const mediaMessages = messages.filter(
-    (msg): msg is Message & { image: string } => Boolean(msg.image)
+  const mediaMessages = useMemo(
+    () =>
+      messages.filter(
+        (msg): msg is Message & { image: string } => Boolean(msg.image)
+      ),
+    [messages]
   );
 
   if (!selectedUser) return null;
@@ -66,12 +71,16 @@ const RightSidebar = () => {
                 <button
                   key={msg._id}
                   type="button"
-                  onClick={() => window.open(msg.image)}
+                  onClick={() =>
+                    window.open(msg.image, "_blank", "noopener,noreferrer")
+                  }
                   className="overflow-hidden rounded-md border focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
                 >
                   <img
                     src={msg.image}
                     alt=""
+                    loading="lazy"
+                    decoding="async"
                     className="h-24 w-full object-cover transition-transform hover:scale-105"
                   />
                 </button>
