@@ -3,7 +3,7 @@ import type { ChangeEvent, FormEvent } from "react";
 import { ArrowLeft } from "lucide-react";
 
 import { useAuth } from "../../context/AuthContext";
-import { icon } from "../assets/assets";
+import icon from "../assets/icon.svg";
 import type { UserCredentials } from "../types";
 import { Button } from "../components/ui/button";
 import {
@@ -18,6 +18,22 @@ import { Checkbox } from "../components/ui/checkbox";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { Textarea } from "../components/ui/textarea";
+
+// Static markup is reused instead of being rebuilt on every keystroke.
+const hero = (
+  <div className="space-y-4">
+    <div className="flex items-center gap-3">
+      <img src={icon} alt="" className="size-10" />
+      <h1 className="font-heading text-4xl font-semibold tracking-widest uppercase sm:text-5xl">
+        PingMe
+      </h1>
+    </div>
+    <p className="max-w-md text-muted-foreground">
+      Connect, share, and explore with PingMe. A simple place to keep your
+      conversations going.
+    </p>
+  </div>
+);
 
 const LoginPage = () => {
   const [currentState, setCurrentState] = useState<"Sign Up" | "Login">(
@@ -58,18 +74,7 @@ const LoginPage = () => {
     <div className="flex min-h-screen items-center justify-center bg-background px-4 py-12">
       <div className="grid w-full max-w-5xl items-center gap-10 lg:grid-cols-2">
         {/* Hero */}
-        <div className="space-y-4">
-          <div className="flex items-center gap-3">
-            <img src={icon} alt="" className="size-10" />
-            <h1 className="font-heading text-4xl font-semibold tracking-widest uppercase sm:text-5xl">
-              PingMe
-            </h1>
-          </div>
-          <p className="max-w-md text-muted-foreground">
-            Connect, share, and explore with PingMe. A simple place to keep your
-            conversations going.
-          </p>
-        </div>
+        {hero}
 
         {/* Auth card */}
         <Card className="w-full max-w-md justify-self-center lg:justify-self-end">
@@ -196,8 +201,8 @@ const LoginPage = () => {
                 <button
                   type="button"
                   onClick={() => {
-                    setCurrentState(
-                      currentState === "Sign Up" ? "Login" : "Sign Up"
+                    setCurrentState((prev) =>
+                      prev === "Sign Up" ? "Login" : "Sign Up"
                     );
                     setIsDataSubmitted(false);
                   }}

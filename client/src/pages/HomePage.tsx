@@ -48,7 +48,7 @@ const HomePage = () => {
             PingMe
           </span>
 
-          {selectedUser && (
+          {selectedUser ? (
             <div className="ml-auto">
               <Sheet>
                 <SheetTrigger
@@ -72,18 +72,18 @@ const HomePage = () => {
                 </SheetContent>
               </Sheet>
             </div>
-          )}
+          ) : null}
         </div>
 
         <ChatContainer />
       </main>
 
       {/* Desktop contact sidebar */}
-      {selectedUser && (
+      {selectedUser ? (
         <aside className="hidden w-80 shrink-0 border-l bg-sidebar lg:block">
           <RightSidebar />
         </aside>
-      )}
+      ) : null}
     </div>
   );
 };
