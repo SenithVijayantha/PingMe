@@ -4,6 +4,7 @@ import { CircleUser, LogOut } from "lucide-react";
 import { useChat } from "../../context/ChatContext";
 import { useAuth } from "../../context/AuthContext";
 import type { Message } from "../types";
+import { AvatarViewer } from "./AvatarViewer";
 import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
 import { Button } from "../components/ui/button";
 import { ScrollArea } from "../components/ui/scroll-area";
@@ -28,17 +29,22 @@ const RightSidebar = () => {
     <div className="flex h-full flex-col bg-sidebar">
       {/* Profile */}
       <div className="flex shrink-0 flex-col items-center gap-3 border-b p-6">
-        <Avatar size="lg" className="size-20">
-          {selectedUser.profilePic ? (
-            <AvatarImage
-              src={selectedUser.profilePic}
-              alt={selectedUser.fullName}
-            />
-          ) : null}
-          <AvatarFallback>
-            <CircleUser className="size-10" />
-          </AvatarFallback>
-        </Avatar>
+        <AvatarViewer
+          src={selectedUser.profilePic}
+          alt={selectedUser.fullName}
+        >
+          <Avatar size="lg" className="size-20">
+            {selectedUser.profilePic ? (
+              <AvatarImage
+                src={selectedUser.profilePic}
+                alt={selectedUser.fullName}
+              />
+            ) : null}
+            <AvatarFallback>
+              <CircleUser className="size-10" />
+            </AvatarFallback>
+          </Avatar>
+        </AvatarViewer>
 
         <div className="flex items-center gap-2">
           <span

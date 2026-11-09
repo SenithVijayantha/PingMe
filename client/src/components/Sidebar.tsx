@@ -20,6 +20,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useChat } from "../../context/ChatContext";
 import type { User } from "../types";
 import { cn } from "@/lib/utils";
+import { AvatarViewer } from "./AvatarViewer";
 import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
 import { Badge } from "../components/ui/badge";
 import { Button } from "../components/ui/button";
@@ -54,24 +55,36 @@ const UserRow = memo(function UserRow({
   onSelect,
 }: UserRowProps) {
   return (
-    <button
-      type="button"
-      onClick={() => onSelect(user)}
+    <div
       className={cn(
-        "flex w-full items-center gap-3 rounded-md px-2 py-2 text-left transition-colors hover:bg-accent focus-visible:bg-accent focus-visible:outline-none",
+        "group/user-row relative flex w-full items-center gap-3 rounded-md px-2 py-2 text-left transition-colors hover:bg-accent focus-within:bg-accent",
         isSelected && "bg-accent"
       )}
     >
-      <Avatar className="size-9">
-        {user.profilePic ? (
-          <AvatarImage src={user.profilePic} alt={user.fullName} />
-        ) : null}
-        <AvatarFallback>
-          <CircleUser className="size-4" />
-        </AvatarFallback>
-      </Avatar>
+      {/* Full-row trigger sits behind the avatar so both actions stay separate. */}
+      <button
+        type="button"
+        onClick={() => onSelect(user)}
+        aria-label={`Open chat with ${user.fullName}`}
+        className="absolute inset-0 z-0 cursor-pointer rounded-md outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
+      />
 
-      <div className="min-w-0 flex-1">
+      <AvatarViewer
+        src={user.profilePic}
+        alt={user.fullName}
+        className="relative z-10"
+      >
+        <Avatar className="size-9">
+          {user.profilePic ? (
+            <AvatarImage src={user.profilePic} alt={user.fullName} />
+          ) : null}
+          <AvatarFallback>
+            <CircleUser className="size-4" />
+          </AvatarFallback>
+        </Avatar>
+      </AvatarViewer>
+
+      <div className="pointer-events-none relative z-0 min-w-0 flex-1">
         <p className="truncate text-sm font-medium">{user.fullName}</p>
         <p
           className={cn(
@@ -92,11 +105,11 @@ const UserRow = memo(function UserRow({
       </div>
 
       {unseenCount > 0 ? (
-        <Badge className="rounded-full bg-primary px-1.5 py-0.5 text-[10px] leading-none text-primary-foreground">
+        <Badge className="pointer-events-none relative z-0 rounded-full bg-primary px-1.5 py-0.5 text-[10px] leading-none text-primary-foreground">
           {unseenCount}
         </Badge>
       ) : null}
-    </button>
+    </div>
   );
 });
 

@@ -6,6 +6,7 @@ import toast from "react-hot-toast";
 
 import { useAuth } from "../../context/AuthContext";
 import { readFileAsDataUrl } from "@/lib/utils";
+import { AvatarViewer } from "../components/AvatarViewer";
 import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
 import { Button } from "../components/ui/button";
 import {
@@ -104,14 +105,19 @@ const ProfilePage = () => {
             />
 
             <div className="flex items-center gap-4">
-              <Avatar size="lg" className="size-14">
-                {avatarSrc ? (
-                  <AvatarImage src={avatarSrc} alt={userData.fullName} />
-                ) : null}
-                <AvatarFallback>
-                  <CircleUser className="size-6" />
-                </AvatarFallback>
-              </Avatar>
+              <AvatarViewer
+                src={avatarSrc}
+                alt={userData.fullName || "Your profile picture"}
+              >
+                <Avatar size="lg" className="size-14">
+                  {avatarSrc ? (
+                    <AvatarImage src={avatarSrc} alt={userData.fullName} />
+                  ) : null}
+                  <AvatarFallback>
+                    <CircleUser className="size-6" />
+                  </AvatarFallback>
+                </Avatar>
+              </AvatarViewer>
 
               <Button
                 type="button"

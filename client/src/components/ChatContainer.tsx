@@ -14,6 +14,7 @@ import { formatDate, readFileAsDataUrl, cn } from "@/lib/utils";
 import { useChat } from "../../context/ChatContext";
 import { useAuth } from "../../context/AuthContext";
 import type { Message } from "../types";
+import { AvatarViewer } from "./AvatarViewer";
 import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
@@ -23,6 +24,7 @@ type MessageRowProps = {
   msg: Message;
   isMine: boolean;
   avatarSrc?: string;
+  avatarAlt: string;
 };
 
 // Memoized so typing in the composer does not re-render the whole history.
@@ -30,6 +32,7 @@ const MessageRow = memo(function MessageRow({
   msg,
   isMine,
   avatarSrc,
+  avatarAlt,
 }: MessageRowProps) {
   return (
     <div
@@ -38,16 +41,14 @@ const MessageRow = memo(function MessageRow({
         isMine && "flex-row-reverse"
       )}
     >
-      <Avatar size="sm">
-        {avatarSrc ? (
-          <AvatarImage src={avatarSrc} alt="" />
-        ) : (
-          <AvatarImage src={avatarIcon} alt="" />
-        )}
-        <AvatarFallback>
-          <CircleUser className="size-3" />
-        </AvatarFallback>
-      </Avatar>
+      <AvatarViewer src={avatarSrc} alt={avatarAlt}>
+        <Avatar size="sm">
+          <AvatarImage src={avatarSrc ?? avatarIcon} alt="" />
+          <AvatarFallback>
+            <CircleUser className="size-3" />
+          </AvatarFallback>
+        </Avatar>
+      </AvatarViewer>
 
       <div
         className={cn(
@@ -171,17 +172,22 @@ const ChatContainer = () => {
     <div className="flex h-full min-h-0 flex-col">
       {/* Header */}
       <header className="flex h-16 shrink-0 items-center gap-3 border-b px-4">
-        <Avatar className="size-9">
-          {selectedUser.profilePic ? (
-            <AvatarImage
-              src={selectedUser.profilePic}
-              alt={selectedUser.fullName}
-            />
-          ) : null}
-          <AvatarFallback>
-            <CircleUser className="size-4" />
-          </AvatarFallback>
-        </Avatar>
+        <AvatarViewer
+          src={selectedUser.profilePic}
+          alt={selectedUser.fullName}
+        >
+          <Avatar className="size-9">
+            {selectedUser.profilePic ? (
+              <AvatarImage
+                src={selectedUser.profilePic}
+                alt={selectedUser.fullName}
+              />
+            ) : null}
+            <AvatarFallback>
+              <CircleUser className="size-4" />
+            </AvatarFallback>
+          </Avatar>
+        </AvatarViewer>
 
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-semibold">
@@ -214,6 +220,9 @@ const ChatContainer = () => {
                 isMine={isMine}
                 avatarSrc={
                   isMine ? authUser.profilePic : selectedUser.profilePic
+                }
+                avatarAlt={
+                  isMine ? authUser.fullName : selectedUser.fullName
                 }
               />
             );
