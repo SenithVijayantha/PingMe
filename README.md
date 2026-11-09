@@ -70,6 +70,7 @@ Create a `.env` file in the `server` directory and add the following environment
 PORT=5000
 MONGO_URI=your_mongodb_connection_string
 JWT_SECRET=your_jwt_secret
+NODE_ENV=dev
 
 # Cloudinary credentials
 CLOUDINARY_CLOUD_NAME=your_cloudinary_cloud_name
