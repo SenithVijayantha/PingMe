@@ -5,6 +5,18 @@ import { useNavigate } from "react-router";
 import toast from "react-hot-toast";
 
 import { useAuth } from "../../context/AuthContext";
+import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
+import { Button } from "../components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { Input } from "../components/ui/input";
+import { Label } from "../components/ui/label";
+import { Textarea } from "../components/ui/textarea";
 
 const ProfilePage = () => {
   const { authUser, updateProfile } = useAuth();
@@ -51,16 +63,23 @@ const ProfilePage = () => {
     };
   };
 
+  const avatarSrc = previewUrl ?? authUser?.profilePic;
+
   return (
-    <div className="p-4 md:p-8 flex justify-center items-center h-screen">
-      <div className=" w-sm">
-        <h1 className="text-2xl mb-8">Profile Details</h1>
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-          <>
+    <div className="flex min-h-screen items-center justify-center bg-background p-4 md:p-8">
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle>Profile Details</CardTitle>
+          <CardDescription>
+            Update your name, bio, and profile picture.
+          </CardDescription>
+        </CardHeader>
+
+        <CardContent>
+          <form onSubmit={handleSubmit} className="flex flex-col gap-5">
             <input
-              type="file"
-              name=""
               id="send-images"
+              type="file"
               accept=".png, .jpg, .jpeg"
               hidden
               onChange={(e) => {
@@ -68,55 +87,63 @@ const ProfilePage = () => {
                 if (file) setSelectedImage(file);
               }}
             />
-            <label htmlFor="send-images" className="flex items-center">
-              {previewUrl ? (
-                <img
-                  src={previewUrl}
-                  alt=""
-                  className="w-10 h-10 rounded-full object-cover"
-                />
-              ) : (
-                <CircleUserRound
-                  width={40}
-                  height={40}
-                  color="gray"
-                  className="cursor-pointer"
-                />
-              )}
 
-              <p className="ml-4 text-gray-400 cursor-pointer">
+            <div className="flex items-center gap-4">
+              <Avatar size="lg" className="size-14">
+                {avatarSrc ? (
+                  <AvatarImage src={avatarSrc} alt={userData.fullName} />
+                ) : null}
+                <AvatarFallback>
+                  <CircleUserRound className="size-6" />
+                </AvatarFallback>
+              </Avatar>
+
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => document.getElementById("send-images")?.click()}
+              >
                 Upload profile image
-              </p>
-            </label>
-          </>
+              </Button>
+            </div>
 
-          <input
-            type="text"
-            value={userData.fullName}
-            placeholder="Your Name"
-            className="input w-full"
-            name="fullName"
-            required
-            autoComplete="name"
-            onChange={(e) =>
-              setUserData({ ...userData, [e.target.name]: e.target.value })
-            }
-          />
-          <textarea
-            name="bio"
-            value={userData.bio}
-            className="textarea resize-none w-full"
-            placeholder="Bio"
-            required
-            onChange={(e) =>
-              setUserData({ ...userData, [e.target.name]: e.target.value })
-            }
-          ></textarea>
-          <button className="btn btn-sm lg:btn-md btn-primary w-max">
-            Save
-          </button>
-        </form>
-      </div>
+            <div className="space-y-2">
+              <Label htmlFor="fullName">Your Name</Label>
+              <Input
+                id="fullName"
+                type="text"
+                value={userData.fullName}
+                placeholder="Your Name"
+                name="fullName"
+                autoComplete="name"
+                required
+                onChange={(e) =>
+                  setUserData({ ...userData, [e.target.name]: e.target.value })
+                }
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="bio">Bio</Label>
+              <Textarea
+                id="bio"
+                name="bio"
+                value={userData.bio}
+                placeholder="Bio"
+                required
+                onChange={(e) =>
+                  setUserData({ ...userData, [e.target.name]: e.target.value })
+                }
+              />
+            </div>
+
+            <Button type="submit" className="w-fit">
+              Save
+            </Button>
+          </form>
+        </CardContent>
+      </Card>
     </div>
   );
 };

@@ -1,3 +1,4 @@
+import { Loader2 } from "lucide-react";
 import { Routes, Route, Navigate } from "react-router";
 import { Toaster } from "react-hot-toast";
 
@@ -12,15 +13,15 @@ const App = () => {
 
   if (loading) {
     return (
-      <div className="h-screen flex justify-center items-center">
-        <span className="loading loading-bars loading-xl"></span>
+      <div className="flex h-screen items-center justify-center bg-background">
+        <Loader2 className="size-8 animate-spin text-muted-foreground" />
       </div>
     );
   }
 
   return (
-    <div>
-      <Toaster />
+    <div className="min-h-screen bg-background text-foreground">
+      <Toaster position="top-center" />
       <Routes>
         <Route
           path="/"

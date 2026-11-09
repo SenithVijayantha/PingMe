@@ -1,8 +1,11 @@
-import { CircleUser } from "lucide-react";
+import { CircleUser, LogOut } from "lucide-react";
 
 import { useChat } from "../../context/ChatContext";
 import { useAuth } from "../../context/AuthContext";
 import type { Message } from "../types";
+import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
+import { Button } from "../components/ui/button";
+import { ScrollArea } from "../components/ui/scroll-area";
 
 const RightSidebar = () => {
   const { selectedUser, messages } = useChat();
@@ -14,52 +17,82 @@ const RightSidebar = () => {
 
   if (!selectedUser) return null;
 
+  const isOnline = onlineUsers.includes(selectedUser._id);
+
   return (
-    <div className="pt-8">
-      {selectedUser.profilePic ? (
-        <img
-          src={selectedUser.profilePic}
-          alt=""
-          className="mx-auto w-20 h-20 object-cover rounded-full"
-        />
-      ) : (
-        <CircleUser width={80} height={80} color="gray" className="mx-auto" />
-      )}
-      <div className=" flex items-center justify-center gap-2 pt-4">
-        {onlineUsers.includes(selectedUser._id) && (
-          <div className="inline-block w-2 h-2 rounded-full bg-primary"></div>
-        )}
-        <h1 className="text-center text-xl">{selectedUser.fullName}</h1>
-      </div>
-      <p className="pt-2 px-10 text-center">{selectedUser.bio}</p>
+    <div className="flex h-full flex-col bg-sidebar">
+      {/* Profile */}
+      <div className="flex shrink-0 flex-col items-center gap-3 border-b p-6">
+        <Avatar size="lg" className="size-20">
+          {selectedUser.profilePic ? (
+            <AvatarImage
+              src={selectedUser.profilePic}
+              alt={selectedUser.fullName}
+            />
+          ) : null}
+          <AvatarFallback>
+            <CircleUser className="size-10" />
+          </AvatarFallback>
+        </Avatar>
 
-      <div className="divider"></div>
-
-      <div>
-        <p className="pb-4">Media</p>
-        <div className="max-h-64 grid grid-cols-2 gap-2 overflow-y-scroll">
-          {mediaMessages.map((msg, index) => (
-            <div
-              key={index}
-              onClick={() => window.open(msg.image)}
-              className="cursor-pointer"
-            >
-              <img src={msg.image} alt="" className="h-full rounded-md" />
-            </div>
-          ))}
+        <div className="flex items-center gap-2">
+          <span
+            className={
+              isOnline
+                ? "size-2 rounded-full bg-emerald-500"
+                : "size-2 rounded-full bg-muted-foreground/40"
+            }
+          />
+          <h2 className="text-center font-heading text-lg font-semibold tracking-widest uppercase">
+            {selectedUser.fullName}
+          </h2>
         </div>
-        {mediaMessages.length === 0 && (
-          <p className="text-center text-gray-500">No media found.</p>
+
+        <p className="text-center text-sm text-muted-foreground">
+          {selectedUser.bio || "No bio yet."}
+        </p>
+      </div>
+
+      {/* Media */}
+      <div className="min-h-0 flex-1 p-4">
+        <p className="mb-3 text-xs font-semibold tracking-widest text-muted-foreground uppercase">
+          Media
+        </p>
+
+        {mediaMessages.length > 0 ? (
+          <ScrollArea className="h-64 overflow-hidden">
+            <div className="grid grid-cols-2 gap-2 pr-2">
+              {mediaMessages.map((msg) => (
+                <button
+                  key={msg._id}
+                  type="button"
+                  onClick={() => window.open(msg.image)}
+                  className="overflow-hidden rounded-md border focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                >
+                  <img
+                    src={msg.image}
+                    alt=""
+                    className="h-24 w-full object-cover transition-transform hover:scale-105"
+                  />
+                </button>
+              ))}
+            </div>
+          </ScrollArea>
+        ) : (
+          <p className="text-sm text-muted-foreground">No media found.</p>
         )}
       </div>
 
-      <div className="absolute bottom-2 left-0 right-0 flex justify-center pt-2 px-4">
-        <button
-          className="w-full btn btn-sm btn-primary"
-          onClick={() => logout()}
+      {/* Logout */}
+      <div className="shrink-0 border-t p-4">
+        <Button
+          variant="outline"
+          className="w-full"
+          onClick={() => void logout()}
         >
+          <LogOut />
           Logout
-        </button>
+        </Button>
       </div>
     </div>
   );

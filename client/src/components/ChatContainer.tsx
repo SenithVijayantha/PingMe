@@ -1,12 +1,22 @@
 import { useRef, useEffect, useState } from "react";
-import type { ChangeEvent, SyntheticEvent } from "react";
-import { MessageSquare, ImagePlus, Send } from "lucide-react";
+import type { ChangeEvent, FormEvent } from "react";
+import {
+  CircleUser,
+  ImagePlus,
+  Loader2,
+  MessageSquare,
+  Send,
+} from "lucide-react";
 import toast from "react-hot-toast";
 
 import { avatarIcon } from "../assets/assets";
-import { formatDate } from "../lib/utils";
+import { formatDate, cn } from "@/lib/utils";
 import { useChat } from "../../context/ChatContext";
 import { useAuth } from "../../context/AuthContext";
+import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import { ScrollArea } from "../components/ui/scroll-area";
 
 const ChatContainer = () => {
   const {
@@ -22,7 +32,7 @@ const ChatContainer = () => {
 
   const [messageTextInput, setMessageTextInput] = useState("");
 
-  const handleSendMessage = async (e: SyntheticEvent) => {
+  const handleSendMessage = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (messageTextInput.trim() === "") return;
@@ -65,112 +75,164 @@ const ChatContainer = () => {
 
   if (!authUser) return null;
 
-  return selectedUser ? (
-    <div className=" flex flex-col justify-between h-screen mx-4">
+  if (!selectedUser) {
+    return (
+      <div className="flex h-full flex-col items-center justify-center gap-4 p-8 text-center">
+        <div className="flex size-16 items-center justify-center rounded-full bg-muted">
+          <MessageSquare className="size-8 text-muted-foreground" />
+        </div>
+        <div>
+          <p className="font-heading text-lg font-semibold tracking-widest uppercase">
+            Ping Me
+          </p>
+          <p className="text-sm text-muted-foreground">
+            Chat with anyone around the world.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  const isSelectedUserOnline = onlineUsers.includes(selectedUser._id);
+
+  return (
+    <div className="flex h-full min-h-0 flex-col">
       {/* Header */}
-      <div className="flex items-center gap-3 py-3 border-b border-accent-content">
-        <img
-          src={selectedUser.profilePic || avatarIcon}
-          alt=""
-          className="w-8 h-8 object-cover rounded-full"
-        />
-        <div className="flex-1 text-lg text-white flex items-center gap-2 ">
-          {selectedUser.fullName}{" "}
-          {onlineUsers.includes(selectedUser._id) && (
-            <div className="w-2 h-2 rounded-full bg-primary"></div>
-          )}
-        </div>
-      </div>
-
-      {/* Chat area */}
-      <div className="overflow-y-scroll py-8 h-screen">
-        {messages.map((msg, index) => (
-          <div
-            key={index}
-            className={`chat ${
-              msg.senderId !== authUser._id ? "chat-start" : "chat-end"
-            }`}
-          >
-            <div className="chat-image avatar">
-              <div className="w-10 rounded-full">
-                <img
-                  alt="Tailwind CSS chat bubble component"
-                  // src={ selectedUser.profilePic || avatarIcon}
-                  src={
-                    msg.senderId === authUser._id
-                      ? authUser.profilePic || avatarIcon
-                      : selectedUser.profilePic || avatarIcon
-                  }
-                />
-              </div>
-            </div>
-            {msg.image ? (
-              <div className="chat-bubble">
-                <img className="rounded-md" src={msg.image} />
-              </div>
-            ) : (
-              <div className="chat-bubble">{msg.text}</div>
-            )}
-
-            <div className="chat-footer opacity-50">
-              <time className="text-xs opacity-50">
-                {formatDate(msg.createdAt)}
-              </time>
-            </div>
-          </div>
-        ))}
-        <div ref={scrollEnd}></div>
-      </div>
-
-      {/* Bottom area */}
-      <div className="flex justify-between px-4 py-2 items-center gap-4">
-        <div className="w-full flex items-center justify-between gap-2">
-          <input
-            type="text"
-            placeholder="Type a message"
-            className="input border-none focus:outline-none w-full"
-            onChange={(e) => setMessageTextInput(e.target.value)}
-            onKeyDown={(e) => (e.key === "Enter" ? handleSendMessage(e) : null)}
-            value={messageTextInput}
-          />
-          <input
-            type="file"
-            name=""
-            id="send-images"
-            accept="image/png, image/jpeg"
-            hidden
-            onChange={handleSendImage}
-          />
-          <label htmlFor="send-images">
-            <ImagePlus
-              width={24}
-              height={24}
-              color="gray"
-              className="cursor-pointer"
+      <header className="flex h-16 shrink-0 items-center gap-3 border-b px-4">
+        <Avatar className="size-9">
+          {selectedUser.profilePic ? (
+            <AvatarImage
+              src={selectedUser.profilePic}
+              alt={selectedUser.fullName}
             />
-          </label>
+          ) : null}
+          <AvatarFallback>
+            <CircleUser className="size-4" />
+          </AvatarFallback>
+        </Avatar>
+
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-semibold">
+            {selectedUser.fullName}
+          </p>
+          <p className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            <span
+              className={cn(
+                "size-1.5 rounded-full",
+                isSelectedUserOnline
+                  ? "bg-emerald-500"
+                  : "bg-muted-foreground/40"
+              )}
+            />
+            {isSelectedUserOnline ? "Online" : "Offline"}
+          </p>
         </div>
-        <button
-          className="bg-accent rounded-sm w-8 h-8 flex items-center justify-center cursor-pointer"
-          onClick={handleSendMessage}
+      </header>
+
+      {/* Messages */}
+      <ScrollArea className="min-h-0 flex-1 overflow-hidden">
+        <div className="flex flex-col gap-4 p-4">
+          {messages.map((msg) => {
+            const isMine = msg.senderId === authUser._id;
+            const avatarSrc = isMine
+              ? authUser.profilePic
+              : selectedUser.profilePic;
+
+            return (
+              <div
+                key={msg._id}
+                className={cn(
+                  "flex items-end gap-2",
+                  isMine && "flex-row-reverse"
+                )}
+              >
+                <Avatar size="sm">
+                  {avatarSrc ? (
+                    <AvatarImage src={avatarSrc} alt="" />
+                  ) : (
+                    <AvatarImage src={avatarIcon} alt="" />
+                  )}
+                  <AvatarFallback>
+                    <CircleUser className="size-3" />
+                  </AvatarFallback>
+                </Avatar>
+
+                <div
+                  className={cn(
+                    "flex max-w-[75%] flex-col gap-1",
+                    isMine ? "items-end" : "items-start"
+                  )}
+                >
+                  <div
+                    className={cn(
+                      "rounded-lg px-3 py-2 text-sm break-words",
+                      isMine
+                        ? "rounded-br-none bg-primary text-primary-foreground"
+                        : "rounded-bl-none bg-muted text-foreground"
+                    )}
+                  >
+                    {msg.image ? (
+                      <img
+                        src={msg.image}
+                        alt="Attachment"
+                        className="max-h-64 max-w-full rounded-md object-cover"
+                      />
+                    ) : (
+                      <p className="whitespace-pre-wrap">{msg.text}</p>
+                    )}
+                  </div>
+                  <time className="text-[10px] text-muted-foreground">
+                    {formatDate(msg.createdAt)}
+                  </time>
+                </div>
+              </div>
+            );
+          })}
+          <div ref={scrollEnd} />
+        </div>
+      </ScrollArea>
+
+      {/* Composer */}
+      <form
+        onSubmit={handleSendMessage}
+        className="flex shrink-0 items-center gap-2 border-t p-3"
+      >
+        <Input
+          type="text"
+          value={messageTextInput}
+          onChange={(e) => setMessageTextInput(e.target.value)}
+          placeholder="Type a message..."
+          className="flex-1"
+          autoComplete="off"
+        />
+
+        <input
+          id="send-images"
+          type="file"
+          accept="image/png, image/jpeg"
+          hidden
+          onChange={handleSendImage}
+        />
+
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          aria-label="Attach image"
+          onClick={() => document.getElementById("send-images")?.click()}
+        >
+          <ImagePlus />
+        </Button>
+
+        <Button
+          type="submit"
+          size="icon-sm"
+          aria-label="Send message"
           disabled={isUploading}
         >
-          {isUploading ? (
-            <span className="loading loading-spinner"></span>
-          ) : (
-            <Send width={16} height={16} />
-          )}
-        </button>
-      </div>
-    </div>
-  ) : (
-    // Placeholder UI displayed when no chat is selected
-    <div className="h-[100vh] flex flex-col justify-center items-center gap-4">
-      <MessageSquare width={65} height={65} color="gray" />
-      <div className="text-center">
-        <p className="text-xl text-gray-600 font-semibold">Ping Me</p>
-        <p className="text-gray-600">Chat with anyone around the world.</p>
-      </div>
+          {isUploading ? <Loader2 className="animate-spin" /> : <Send />}
+        </Button>
+      </form>
     </div>
   );
 };

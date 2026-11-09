@@ -1,9 +1,23 @@
 import { useState } from "react";
-import type { FormEvent } from "react";
+import type { ChangeEvent, FormEvent } from "react";
 import { ArrowLeft } from "lucide-react";
 
 import { useAuth } from "../../context/AuthContext";
+import { icon } from "../assets/assets";
 import type { UserCredentials } from "../types";
+import { Button } from "../components/ui/button";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { Checkbox } from "../components/ui/checkbox";
+import { Input } from "../components/ui/input";
+import { Label } from "../components/ui/label";
+import { Textarea } from "../components/ui/textarea";
 
 const LoginPage = () => {
   const [currentState, setCurrentState] = useState<"Sign Up" | "Login">(
@@ -19,10 +33,17 @@ const LoginPage = () => {
 
   const { login } = useAuth();
 
+  const handleFieldChange = (
+    e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setUserCredentials((prev) => ({ ...prev, [name]: value }));
+  };
+
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (currentState === "Sign Up" && isDataSubmitted === false) {
+    if (currentState === "Sign Up" && !isDataSubmitted) {
       setIsDataSubmitted(true);
       return;
     }
@@ -34,144 +55,160 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="hero bg-base-200 min-h-screen">
-      <div className="hero-content flex-col lg:flex-row-reverse gap-8">
-        <div className="text-center lg:text-left">
-          <h1 className="text-5xl font-bold">PingMe</h1>
-          <p className="py-6 max-w-lg">
-            Connect, share, and explore with PingMe.
+    <div className="flex min-h-screen items-center justify-center bg-background px-4 py-12">
+      <div className="grid w-full max-w-5xl items-center gap-10 lg:grid-cols-2">
+        {/* Hero */}
+        <div className="space-y-4">
+          <div className="flex items-center gap-3">
+            <img src={icon} alt="" className="size-10" />
+            <h1 className="font-heading text-4xl font-semibold tracking-widest uppercase sm:text-5xl">
+              PingMe
+            </h1>
+          </div>
+          <p className="max-w-md text-muted-foreground">
+            Connect, share, and explore with PingMe. A simple place to keep your
+            conversations going.
           </p>
         </div>
-        <div className="card bg-base-100 w-full max-w-sm shrink-0 shadow-2xl">
-          <div className="card-body">
-            <div className="flex items-center justify-between mb-2">
-              <h2 className="text-2xl font-semibold ">{currentState}</h2>{" "}
-              {isDataSubmitted && (
-                <ArrowLeft
+
+        {/* Auth card */}
+        <Card className="w-full max-w-md justify-self-center lg:justify-self-end">
+          <CardHeader>
+            <CardTitle>{currentState}</CardTitle>
+            <CardDescription>
+              {currentState === "Sign Up"
+                ? isDataSubmitted
+                  ? "Tell us a little about yourself."
+                  : "Create an account to start chatting."
+                : "Welcome back. Sign in to continue."}
+            </CardDescription>
+            {isDataSubmitted && (
+              <CardAction>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-sm"
+                  aria-label="Back"
                   onClick={() => setIsDataSubmitted(false)}
-                  className="cursor-pointer btn btn-sm p-1 btn-circle"
-                />
+                >
+                  <ArrowLeft />
+                </Button>
+              </CardAction>
+            )}
+          </CardHeader>
+
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-5">
+              {currentState === "Sign Up" && !isDataSubmitted && (
+                <div className="space-y-2">
+                  <Label htmlFor="fullName">Full Name</Label>
+                  <Input
+                    id="fullName"
+                    name="fullName"
+                    value={userCredentials.fullName}
+                    onChange={handleFieldChange}
+                    placeholder="Full Name"
+                    autoComplete="name"
+                    required
+                  />
+                </div>
               )}
-            </div>
-            <form action="" onSubmit={handleSubmit}>
-              <fieldset className="fieldset">
-                {currentState === "Sign Up" && isDataSubmitted === false && (
-                  <>
-                    <label className="label">Full Name</label>
-                    <input
-                      type="text"
-                      name="fullName"
-                      value={userCredentials.fullName}
-                      className="input"
-                      placeholder="Full Name"
-                      required
-                      onChange={(e) =>
-                        setUserCredentials({
-                          ...userCredentials,
-                          [e.target.name]: e.target.value,
-                        })
-                      }
-                    />
-                  </>
-                )}
-                {isDataSubmitted === false && (
-                  <>
-                    <label className="label">Email</label>
-                    <input
+
+              {!isDataSubmitted && (
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                      id="email"
                       type="email"
                       name="email"
                       value={userCredentials.email}
-                      className="input"
+                      onChange={handleFieldChange}
                       placeholder="Email"
+                      autoComplete="email"
                       required
-                      onChange={(e) =>
-                        setUserCredentials({
-                          ...userCredentials,
-                          [e.target.name]: e.target.value,
-                        })
-                      }
                     />
-                  </>
-                )}
-                {isDataSubmitted === false && (
-                  <>
-                    <label className="label">Password</label>
-                    <input
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="password">Password</Label>
+                    <Input
+                      id="password"
                       type="password"
                       name="password"
                       value={userCredentials.password}
-                      className="input"
+                      onChange={handleFieldChange}
                       placeholder="Password"
-                      required
-                      onChange={(e) =>
-                        setUserCredentials({
-                          ...userCredentials,
-                          [e.target.name]: e.target.value,
-                        })
+                      autoComplete={
+                        currentState === "Sign Up"
+                          ? "new-password"
+                          : "current-password"
                       }
+                      required
                     />
-                  </>
-                )}
-                {currentState === "Sign Up" && isDataSubmitted === false && (
-                  <div className="mt-4">
-                    <fieldset>
-                      <label className="label">
-                        <input
-                          type="checkbox"
-                          defaultChecked
-                          className="checkbox"
-                          required
-                        />
-                        Agree to the terms of use & privacy policy.
-                      </label>
-                    </fieldset>
                   </div>
-                )}
-                {currentState === "Sign Up" && isDataSubmitted === true && (
-                  <textarea
+                </>
+              )}
+
+              {currentState === "Sign Up" && !isDataSubmitted && (
+                <div className="flex items-start gap-2">
+                  <Checkbox
+                    id="terms"
+                    name="terms"
+                    defaultChecked
+                    required
+                    className="mt-0.5"
+                  />
+                  <Label
+                    htmlFor="terms"
+                    className="text-sm font-normal tracking-normal normal-case text-muted-foreground"
+                  >
+                    Agree to the terms of use & privacy policy.
+                  </Label>
+                </div>
+              )}
+
+              {currentState === "Sign Up" && isDataSubmitted && (
+                <div className="space-y-2">
+                  <Label htmlFor="bio">Bio</Label>
+                  <Textarea
+                    id="bio"
                     name="bio"
                     value={userCredentials.bio}
-                    className="textarea w-full resize-none"
-                    placeholder="Bio"
-                    onChange={(e) =>
-                      setUserCredentials({
-                        ...userCredentials,
-                        [e.target.name]: e.target.value,
-                      })
-                    }
-                  ></textarea>
-                )}
-                {currentState === "Sign Up" ? (
-                  <p>
-                    Already have an account?{" "}
-                    <span
-                      onClick={() => {
-                        setCurrentState("Login");
-                        setIsDataSubmitted(false);
-                      }}
-                      className="text-accent cursor-pointer"
-                    >
-                      Login here
-                    </span>
-                  </p>
-                ) : (
-                  <p>
-                    Create an account{" "}
-                    <span
-                      onClick={() => setCurrentState("Sign Up")}
-                      className="text-accent cursor-pointer"
-                    >
-                      Click here
-                    </span>
-                  </p>
-                )}
-                <button className="btn btn-neutral mt-4">
-                  {currentState === "Sign Up" ? "Create Account" : "Login Now"}
+                    onChange={handleFieldChange}
+                    placeholder="Tell us about yourself"
+                  />
+                </div>
+              )}
+
+              <Button type="submit" className="w-full">
+                {currentState === "Sign Up"
+                  ? isDataSubmitted
+                    ? "Create Account"
+                    : "Continue"
+                  : "Login Now"}
+              </Button>
+
+              <p className="text-center text-sm text-muted-foreground">
+                {currentState === "Sign Up"
+                  ? "Already have an account? "
+                  : "Create an account "}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCurrentState(
+                      currentState === "Sign Up" ? "Login" : "Sign Up"
+                    );
+                    setIsDataSubmitted(false);
+                  }}
+                  className="font-medium text-foreground underline underline-offset-4 hover:text-foreground/80"
+                >
+                  {currentState === "Sign Up" ? "Login here" : "Click here"}
                 </button>
-              </fieldset>
+              </p>
             </form>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
