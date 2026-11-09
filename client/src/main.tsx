@@ -19,5 +19,5 @@ createRoot(document.getElementById("root")!).render(
         </ChatProvider>
       </AuthProvider>
     </BrowserRouter>
-  </StrictMode>,
+  </StrictMode>
 );
