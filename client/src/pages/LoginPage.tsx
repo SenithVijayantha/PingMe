@@ -155,7 +155,7 @@ const LoginPage = () => {
                 </>
               )}
 
-              {currentState === "Sign Up" && !isDataSubmitted && (
+              {/* {currentState === "Sign Up" && !isDataSubmitted && (
                 <div className="flex items-start gap-2">
                   <Checkbox
                     id="terms"
@@ -171,7 +171,7 @@ const LoginPage = () => {
                     Agree to the terms of use & privacy policy.
                   </Label>
                 </div>
-              )}
+              )} */}
 
               {currentState === "Sign Up" && isDataSubmitted && (
                 <div className="space-y-2">
