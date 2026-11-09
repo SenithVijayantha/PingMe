@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from "react";
+import { memo, useRef, useEffect, useState } from "react";
 import type { ChangeEvent, FormEvent } from "react";
 import {
   CircleUser,
@@ -9,14 +9,79 @@ import {
 } from "lucide-react";
 import toast from "react-hot-toast";
 
-import { avatarIcon } from "../assets/assets";
-import { formatDate, cn } from "@/lib/utils";
+import avatarIcon from "../assets/avatar-icon.svg";
+import { formatDate, readFileAsDataUrl, cn } from "@/lib/utils";
 import { useChat } from "../../context/ChatContext";
 import { useAuth } from "../../context/AuthContext";
+import type { Message } from "../types";
 import { Avatar, AvatarFallback, AvatarImage } from "../components/ui/avatar";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { ScrollArea } from "../components/ui/scroll-area";
+
+type MessageRowProps = {
+  msg: Message;
+  isMine: boolean;
+  avatarSrc?: string;
+};
+
+// Memoized so typing in the composer does not re-render the whole history.
+const MessageRow = memo(function MessageRow({
+  msg,
+  isMine,
+  avatarSrc,
+}: MessageRowProps) {
+  return (
+    <div
+      className={cn(
+        "flex items-end gap-2",
+        isMine && "flex-row-reverse"
+      )}
+    >
+      <Avatar size="sm">
+        {avatarSrc ? (
+          <AvatarImage src={avatarSrc} alt="" />
+        ) : (
+          <AvatarImage src={avatarIcon} alt="" />
+        )}
+        <AvatarFallback>
+          <CircleUser className="size-3" />
+        </AvatarFallback>
+      </Avatar>
+
+      <div
+        className={cn(
+          "flex max-w-[75%] flex-col gap-1",
+          isMine ? "items-end" : "items-start"
+        )}
+      >
+        <div
+          className={cn(
+            "rounded-lg px-3 py-2 text-sm break-words",
+            isMine
+              ? "rounded-br-none bg-primary text-primary-foreground"
+              : "rounded-bl-none bg-muted text-foreground"
+          )}
+        >
+          {msg.image ? (
+            <img
+              src={msg.image}
+              alt="Attachment"
+              loading="lazy"
+              decoding="async"
+              className="max-h-64 max-w-full rounded-md object-cover"
+            />
+          ) : (
+            <p className="whitespace-pre-wrap">{msg.text}</p>
+          )}
+        </div>
+        <time className="text-[10px] text-muted-foreground">
+          {formatDate(msg.createdAt)}
+        </time>
+      </div>
+    </div>
+  );
+});
 
 const ChatContainer = () => {
   const {
@@ -29,8 +94,11 @@ const ChatContainer = () => {
   const { authUser, onlineUsers } = useAuth();
 
   const scrollEnd = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [messageTextInput, setMessageTextInput] = useState("");
+
+  const selectedUserId = selectedUser?._id;
 
   const handleSendMessage = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -45,30 +113,34 @@ const ChatContainer = () => {
     const input = e.target;
     const file = input.files?.[0];
 
-    if (!file || !file.type.startsWith("image/")) {
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
       toast.error("Select an image file");
+      input.value = "";
       return;
     }
 
-    const reader = new FileReader();
-
-    reader.onloadend = async () => {
-      if (typeof reader.result === "string") {
-        await sendMessage({ image: reader.result });
-      }
+    try {
+      const dataUrl = await readFileAsDataUrl(file);
+      await sendMessage({ image: dataUrl });
+    } catch {
+      toast.error("Failed to read the selected image.");
+    } finally {
       input.value = "";
-    };
-    reader.readAsDataURL(file);
+    }
   };
 
   useEffect(() => {
-    if (selectedUser) {
-      getMessages(selectedUser._id);
+    if (selectedUserId) {
+      void getMessages(selectedUserId);
     }
-  }, [selectedUser]);
+    // getMessages is intentionally omitted: the chat provider recreates it on
+    // every render, so depending on it would refetch in a loop.
+  }, [selectedUserId]);
 
   useEffect(() => {
-    if (scrollEnd.current && messages) {
+    if (scrollEnd.current) {
       scrollEnd.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages]);
@@ -134,58 +206,16 @@ const ChatContainer = () => {
         <div className="flex flex-col gap-4 p-4">
           {messages.map((msg) => {
             const isMine = msg.senderId === authUser._id;
-            const avatarSrc = isMine
-              ? authUser.profilePic
-              : selectedUser.profilePic;
 
             return (
-              <div
+              <MessageRow
                 key={msg._id}
-                className={cn(
-                  "flex items-end gap-2",
-                  isMine && "flex-row-reverse"
-                )}
-              >
-                <Avatar size="sm">
-                  {avatarSrc ? (
-                    <AvatarImage src={avatarSrc} alt="" />
-                  ) : (
-                    <AvatarImage src={avatarIcon} alt="" />
-                  )}
-                  <AvatarFallback>
-                    <CircleUser className="size-3" />
-                  </AvatarFallback>
-                </Avatar>
-
-                <div
-                  className={cn(
-                    "flex max-w-[75%] flex-col gap-1",
-                    isMine ? "items-end" : "items-start"
-                  )}
-                >
-                  <div
-                    className={cn(
-                      "rounded-lg px-3 py-2 text-sm break-words",
-                      isMine
-                        ? "rounded-br-none bg-primary text-primary-foreground"
-                        : "rounded-bl-none bg-muted text-foreground"
-                    )}
-                  >
-                    {msg.image ? (
-                      <img
-                        src={msg.image}
-                        alt="Attachment"
-                        className="max-h-64 max-w-full rounded-md object-cover"
-                      />
-                    ) : (
-                      <p className="whitespace-pre-wrap">{msg.text}</p>
-                    )}
-                  </div>
-                  <time className="text-[10px] text-muted-foreground">
-                    {formatDate(msg.createdAt)}
-                  </time>
-                </div>
-              </div>
+                msg={msg}
+                isMine={isMine}
+                avatarSrc={
+                  isMine ? authUser.profilePic : selectedUser.profilePic
+                }
+              />
             );
           })}
           <div ref={scrollEnd} />
@@ -207,7 +237,7 @@ const ChatContainer = () => {
         />
 
         <input
-          id="send-images"
+          ref={fileInputRef}
           type="file"
           accept="image/png, image/jpeg"
           hidden
@@ -219,7 +249,7 @@ const ChatContainer = () => {
           variant="ghost"
           size="icon-sm"
           aria-label="Attach image"
-          onClick={() => document.getElementById("send-images")?.click()}
+          onClick={() => fileInputRef.current?.click()}
         >
           <ImagePlus />
         </Button>
